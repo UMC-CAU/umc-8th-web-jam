@@ -14,7 +14,6 @@ html, body {
     height: 100%;
 }
 .floor {
-    background-color:aliceblue;
     display:flex;
     justify-content: space-around;
     align-items: center;
@@ -22,12 +21,13 @@ html, body {
 
 .one {
     height: 10vh;
+    display: grid;
+    grid-template-columns: 30% 70%;
 }
 
 .header {
     background-color: rgb(3, 3, 22);
     color: white;
-    width: 30%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -37,7 +37,6 @@ html, body {
 .menu {
     background-color: rgb(244, 72, 72);
     color: white;
-    width: 70%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -52,12 +51,13 @@ html, body {
 
 .three {
     height:40vh;
+    display: grid;
+    grid-template-columns: 50% 50%;
 }
 
 .main {
     background-color: rgb(1, 22, 57);
     color: white;
-    width: 50%;
     height: 100%;
     display: flex;
     align-items: center;
@@ -67,22 +67,20 @@ html, body {
 .main-right {
     background-color: white;
     color: black;
-    width: 50%;
     height: 100%;
-    display: flex;
+    display: grid;
+    grid-template-columns: 50% 50%;
     align-items: center;
     justify-content: center;
 }
 
 .blank {
     background-color: white;
-    width: 50%;
     height: 100%;
     display: flex;
 }
 
 .img-ext {
-    width:50%;
     height: 100%;
 }
 
