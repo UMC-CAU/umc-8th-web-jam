@@ -11,6 +11,8 @@ a {
     font-family:sans-serif;
 }
 
+
+
 .logo {
     display: flex;
     align-items: center;
@@ -63,4 +65,54 @@ a {
 /* hover 사용해서 마우스를 올리면 메뉴가 나타남 */
 .dropdown:hover .dropdown-menu {
     display: block; /* 수직으로 한 줄씩 차지하도록 block으로 (세로로 하고 싶으면 flex) */
+}
+
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    padding-top: 100px;
+    font-family: sans-serif;
+}
+
+.main h1 {
+    font-size: 50px;
+}
+
+.main p {
+    font-size: 15px;
+}
+
+.green {
+    color: green;
+    animation: sparkle 0.5s infinite alternate;
+}
+
+.main-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-button {
+    background-color: rgb(54, 185, 54);
+    font-family: sans-serif;
+    font-size: 18px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    box-shadow: none; 
+    border:none;
+    outline: none;
+    cursor: pointer;
+    width: 160px;
+}
+
+.main-button:hover {
+    background-color: white;
+}
+
+@keyframes sparkle {
+    from { opacity: 1; } /* 처음에는 정상적인 밝기 */
+    to { opacity: 0.7; } /* 중간에 흐려졌다가 */
 }
