@@ -14,7 +14,6 @@ a {
 .logo {
     display: flex;
     align-items: center;
-    gap: 10px; /*최신 CSS에서 사용하는 방법*/
     font-family:sans-serif;
 }
 
