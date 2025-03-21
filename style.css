@@ -2,3 +2,9 @@ header {
     display: flex;
     justify-content: space-between;
 }
+
+.logo {
+    width: 100px;     /* 너비 조절 */
+    height: auto;     /* 높이 자동 비율 유지 */
+    display: block;   /* 가운데 정렬 시에 유용 */
+  }
