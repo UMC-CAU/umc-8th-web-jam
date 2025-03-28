@@ -1,28 +1,22 @@
 import React from 'react';
-import './App.css';
-import List from './components/List';
+import './App.css'
+import { useState } from 'react';
 
-function App(){
-  const nickname: string = '브라키오사우르스';
-  const favoriteFood: string = '피자';
-  const tea: string[] = ['녹차','홍차','우롱차','매실차','오미자차'];
-  const movie: string[] = ['콘클라베', '미키17', '와일드 투어', '쉬리'];
-  const university: string[] = ['중앙대학교', '앙중대학교', '웅장대학교', '장웅대학교'];
-
+function App() {
+  const [count, setCount] = useState(0)
+  const handleIncreaseNumber = () => {
+    setCount(prev => prev + 1);
+  }
+  const handleDecreaseNumber = () => {
+    setCount(prev => prev - 1);
+  }
   return (
-    <>
-      <strong className='school'>중앙대학교</strong>
-      <p style={{color: 'purple', fontWeight:'bold', fontSize:'8rem'}}>
-        {nickname}/권재민
-      </p>
-      <h1>{`${nickname}는 ${favoriteFood} 좋아합니다.`}</h1>
-      <ul>
-        {tea.map((tea, idx) => (
-          <List key={idx} tea={tea} />
-        ))}
-      </ul>
-    </>
-  );
+     <>
+      <h1>{count}</h1>
+      <button onClick={handleIncreaseNumber}>숫자 증가</button>
+      <button onClick={handleDecreaseNumber}>숫자 감소</button>
+     </>
+  )
 }
 
-export default App;
+export default App
