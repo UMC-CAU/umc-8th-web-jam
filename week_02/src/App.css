@@ -23,15 +23,16 @@ body {
   font-size: xx-large;
 }
 
-#todo-input {
+.todo-input {
   flex: 1;
   padding: 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
   height: 15px;
+  margin-right: 5px;
 }
 
-#add-btn {
+.add-btn {
   background-color: darkslategray;
   color: white;
   border-radius: 5px;
@@ -40,7 +41,7 @@ body {
   cursor: pointer;
 }
 
-#add-btn:hover {
+.add-btn:hover {
   background-color: black;
 }
 

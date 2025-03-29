@@ -1,11 +1,14 @@
 import React, { useState } from "react";
+import TodoInput from "./components/TodoInput";
+import TodoList from "./components/TodoList";
+import DoneList from "./components/DoneList";
 import "./App.css";
 
 interface Todo {
   id: string;
   task: string;
   isDone: boolean;
-};
+}
 
 const App = () => {
   const [todoInput, setTodoInput] = useState("");
@@ -43,50 +46,10 @@ const App = () => {
   return (
     <div className="container">
       <div className="title-container">📋 오늘 할 일</div>
-      <div className="input-container">
-        <input
-          id="todo-input"
-          type="text"
-          placeholder="설마 할 일이 또 있나요?"
-          value={todoInput}
-          onChange={(e) => setTodoInput(e.target.value)} 
-          // onChange는 입력값이 바뀔 때마다 실행되는 이벤트 핸들러
-          // 사용자가 입력 → onChange 발생 → 상태 변경 → 입력창에 반영
-          // React에서는 input을 직접 제어하지 않고, state를 통해 통제
-        />
-        <button id="add-btn" onClick={addTodo}>
-          을(를) 해야합니다.
-        </button>
-      </div>
-
+      <TodoInput value={todoInput} onChange={setTodoInput} onAdd={addTodo} />
       <div className="list-container">
-        <div className="todo-box">
-          <h3 className="list-title">할 일 😭</h3>
-          <ul id="todo-list">
-            {todoArray.map((todo) => (
-              <li key={todo.id}>
-                <span>{todo.task}</span>
-                <button className="complete-btn" onClick={() => doTodo(todo.id)}>
-                  완료
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="done-box">
-          <h3 className="list-title">한 일 😄</h3>
-          <ul id="done-list">
-            {doneArray.map((todo) => (
-              <li key={todo.id}>
-                <span style={{ textDecoration: "line-through" }}>{todo.task}</span>
-                <button className="delete-btn" onClick={() => deleteTodo(todo.id)}>
-                  삭제
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <TodoList todos={todoArray} onComplete={doTodo} />
+        <DoneList todos={doneArray} onDelete={deleteTodo} />
       </div>
     </div>
   );
