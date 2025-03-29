@@ -1,23 +1,20 @@
 import React from "react";
+import { useTodoContext } from "../context/TodoContext";
 
-interface TodoInputProps {
-    value: string;
-    onChange: (value: string) => void;
-    onAdd: () => void;
-}
+const TodoInput = () => {
+    const { todoInput, setTodoInput, addTodo } = useTodoContext();
 
-const TodoInput: React.FC<TodoInputProps> = ({ value, onChange, onAdd }) => {
     return (
         <div className="input-container">
-            <input
-                className="todo-input"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder="설마 할 일이 또 있나요?"
-            />
-            <button className="add-btn" onClick={onAdd}>
-                을/를 해야 합니다.
-            </button>
+        <input
+            className="todo-input"
+            value={todoInput}
+            onChange={(e) => setTodoInput(e.target.value)}
+            placeholder="설마 할 일이 또 있어요?"
+        />
+        <button className="add-btn" onClick={addTodo}>
+            을(를) 해야합니다.
+        </button>
         </div>
     );
 };

@@ -1,14 +1,10 @@
 import React, { useState } from "react";
+import { Todo, TodoContext } from "./context/TodoContext";
 import TodoInput from "./components/TodoInput";
 import TodoList from "./components/TodoList";
 import DoneList from "./components/DoneList";
 import "./App.css";
 
-interface Todo {
-  id: string;
-  task: string;
-  isDone: boolean;
-}
 
 const App = () => {
   const [todoInput, setTodoInput] = useState("");
@@ -43,15 +39,29 @@ const App = () => {
     setDoneArray(doneArray.filter((todo) => todo.id !== id));
   };
 
+  const todoContextValue = {
+    todoArray,
+    doneArray,
+    todoInput,
+    setTodoInput,
+    addTodo,
+    doTodo,
+    deleteTodo,
+  };
+
+
+  // App.tsx에 Provider 사용
   return (
-    <div className="container">
-      <div className="title-container">📋 오늘 할 일</div>
-      <TodoInput value={todoInput} onChange={setTodoInput} onAdd={addTodo} />
-      <div className="list-container">
-        <TodoList todos={todoArray} onComplete={doTodo} />
-        <DoneList todos={doneArray} onDelete={deleteTodo} />
+    <TodoContext.Provider value={todoContextValue}> 
+      <div className="container">
+        <div className="title-container">📋 오늘 할 일</div>
+        <TodoInput />
+        <div className="list-container">
+          <TodoList />
+          <DoneList />
+        </div>
       </div>
-    </div>
+    </TodoContext.Provider>
   );
 };
 

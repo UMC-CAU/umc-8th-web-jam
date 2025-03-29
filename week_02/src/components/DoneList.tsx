@@ -1,28 +1,20 @@
 import React from "react";
 import DoneItem from "./DoneItem";
+import { useTodoContext } from "../context/TodoContext";
 
-interface Todo {
-  id: string;
-  task: string;
-  isDone: boolean;
-}
+const DoneList = () => {
+    const { doneArray } = useTodoContext();
 
-interface DoneListProps {
-  todos: Todo[];
-  onDelete: (id: string) => void;
-}
-
-const DoneList: React.FC<DoneListProps> = ({ todos, onDelete }) => {
-  return (
-    <div className="done-box">
-      <h3 className="list-title">한 일 😄</h3>
-      <ul>
-        {todos.map((todo) => (
-          <DoneItem key={todo.id} id={todo.id} task={todo.task} onDelete={onDelete} />
-        ))}
-      </ul>
-    </div>
-  );
+    return (
+        <div className="done-box">
+        <h3 className="list-title">한 일 😄</h3>
+        <ul>
+            {doneArray.map((todo) => (
+            <DoneItem key={todo.id} id={todo.id} task={todo.task} />
+            ))}
+        </ul>
+        </div>
+    );
 };
 
 export default DoneList;
