@@ -1,0 +1,121 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; 
+    background-color: lightgrey;
+    flex-direction: column;
+  }
+  
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: gray;
+    flex-direction: column;
+    padding: 20px;
+    width: 400px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .title-container {
+    font-size: xx-large;
+  }
+  
+  .todo-input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    height: 15px;
+    margin-right: 5px;
+  }
+  
+  .add-btn {
+    background-color: darkslategray;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .add-btn:hover {
+    background-color: black;
+  }
+  
+  .list-container {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    justify-content: space-around;
+    padding-top: 10px;
+  }
+  
+  .list-container h3 {
+    text-align: center;
+    margin-bottom: 10px;
+    min-height: 30px; 
+  
+  }
+  
+  .todo-box,
+  .done-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 10px;
+    padding: 10px;
+    height: 100%;
+  }
+  
+  ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+  }
+  
+  li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 95%;
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+  }
+  
+  .complete-btn {  /*여러 개 생기니까 class로*/
+    background-color: green;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .complete-btn:hover {
+    background-color: darkgreen;
+  }
+  
+  .delete-btn {  /*여러 개 생기니까 class로*/
+    background-color: red;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .delete-btn:hover {
+    background-color: darkred;
+  }
+  
+  
