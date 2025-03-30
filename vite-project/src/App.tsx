@@ -4,6 +4,8 @@ import TodoInput from "./components/TodoInput";
 import TodoList from "./components/TodoList";
 import DoneList from "./components/DoneList";
 import "./App.css";
+import ThemeToggleButton from "./components/ThemeToggleButton";
+import { ThemeProvider } from "./context/ThemeProvider";
 
 
 const App = () => {
@@ -52,16 +54,19 @@ const App = () => {
 
   // App.tsx에 Provider 사용
   return (
-    <TodoContext.Provider value={todoContextValue}> 
-      <div className="container">
-        <div className="title-container">📋 오늘 할 일</div>
-        <TodoInput />
-        <div className="list-container">
-          <TodoList />
-          <DoneList />
+    <ThemeProvider>
+      <TodoContext.Provider value={todoContextValue}> 
+        <div className="container">
+          <div className="title-container">📋 오늘 할 일</div>
+          <TodoInput />
+          <div className="list-container">
+            <TodoList />
+            <DoneList />
+          </div>
         </div>
-      </div>
-    </TodoContext.Provider>
+        <ThemeToggleButton />
+      </TodoContext.Provider>
+      </ThemeProvider>
   );
 };
 
