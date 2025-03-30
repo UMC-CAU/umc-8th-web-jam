@@ -1,4 +1,3 @@
-import React from "react";
 import { useTodoContext } from "../context/TodoContext";
 
 const TodoInput = () => {

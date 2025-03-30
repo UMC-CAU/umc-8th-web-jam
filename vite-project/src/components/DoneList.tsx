@@ -1,4 +1,3 @@
-import React from "react";
 import DoneItem from "./DoneItem";
 import { useTodoContext } from "../context/TodoContext";
 
