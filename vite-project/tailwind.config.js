@@ -4,7 +4,7 @@ module.exports = {
       "./index.html",
       "./src/**/*.{js,ts,jsx,tsx}",
     ],
-    darkMode: 'class', // <-- 이 부분 추가!
+    darkMode: 'class',
     theme: {
       extend: {},
     },

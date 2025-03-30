@@ -1,42 +1,48 @@
-import { ReactElement, useContext } from "react";
-import { createContext, PropsWithChildren, useState } from "react";
+// context/ThemeProvider.tsx
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export enum THEME {
-    LIGHT = 'LIGHT',
-    DARK = 'DARK'
+  LIGHT = 'LIGHT',
+  DARK = 'DARK'
 }
 
-type TTheme = THEME.DARK | THEME.LIGHT;
+type ThemeType = THEME.LIGHT | THEME.DARK;
 
-interface IThemeContext {
-    theme: THEME.DARK | THEME.LIGHT;
-    toggleTheme: () => void;
+interface ThemeContextType {
+  theme: ThemeType;
+  toggleTheme: () => void;
 }
 
-const ThemeContext = createContext<IThemeContext | undefined>(undefined);
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider = ({ children }: PropsWithChildren) : ReactElement => {
-    const [theme, setTheme] = useState<TTheme>(THEME.LIGHT);
+export const ThemeProvider = ({ children }: { children: ReactNode }) => {
+  const [theme, setTheme] = useState<ThemeType>(THEME.LIGHT);
 
-    const toggleTheme = () : void => {
-        setTheme((prevTheme) : THEME =>
-            prevTheme === THEME.LIGHT ? THEME.DARK : THEME.LIGHT
-        );
-    };
+  // 💡 핵심 로직: html 태그에 클래스 적용
+  useEffect(() => {
+    const root = document.documentElement;
 
-    return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
-            {children}
-        </ThemeContext.Provider>
-    );
-}
-
-export const useTheme = () : IThemeContext => {
-    const context = useContext(ThemeContext);
-
-    if (!context) {
-        throw new Error('useTheme must be used witin a ThemeProvider');
+    if (theme === THEME.DARK) {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
     }
+  }, [theme]);
 
-    return context;
-}
+  const toggleTheme = () => {
+    setTheme(prev => (prev === THEME.LIGHT ? THEME.DARK : THEME.LIGHT));
+  };
+
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = (): ThemeContextType => {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error("useTheme must be used within ThemeProvider");
+  return context;
+};
+

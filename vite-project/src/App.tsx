@@ -58,18 +58,52 @@ const App = () => {
 };
 
 const AppInner = () => {
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
+  const isLightMode = theme === THEME.LIGHT;
 
   return (
-    <div className={theme === THEME.DARK ? "dark" : ""}>
-      <div className="container bg-white dark:bg-gray-800 dark:text-white">
-        <div className="title-container">📋 오늘 할 일</div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh",
+        width: "100vw",
+        backgroundColor: isLightMode ? "lightgrey" : "#1e1e1e",
+        flexDirection: "column",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: isLightMode ? "gray" : "#2e2e2e",
+          flexDirection: "column",
+          padding: "20px",
+          width: "400px",
+          borderRadius: "10px",
+          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          color: isLightMode ? "black" : "white",
+        }}
+      >
+        <div style={{ fontSize: "xx-large", marginBottom: "16px" }}>📋 오늘 할 일</div>
         <TodoInput />
-        <div className="list-container">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "stretch",
+            width: "100%",
+            justifyContent: "space-around",
+            paddingTop: "10px",
+          }}
+        >
           <TodoList />
           <DoneList />
         </div>
-        <ThemeToggleButton />
+        <div style={{ marginTop: "16px" }}>
+          <ThemeToggleButton />
+        </div>
       </div>
     </div>
   );
