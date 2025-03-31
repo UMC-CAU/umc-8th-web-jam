@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@tailwindcss/vite": "^4.0.17",
     "0g": "^0.4.2",
     "pnpm": "^10.6.5",
     "react": "^19.0.0",
