@@ -4,7 +4,8 @@
     "0g": "^0.4.2",
     "pnpm": "^10.6.5",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.4.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.12",
