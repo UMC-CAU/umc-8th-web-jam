@@ -18,7 +18,19 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: 'movies',
+        path: 'popular',
+        element: <Movies />, // 인기 영화 목록
+      },
+      {
+        path: 'upcoming',
+        element: <Movies />, // 인기 영화 목록
+      },
+      {
+        path: 'top_rated',
+        element: <Movies />, // 인기 영화 목록
+      },
+      {
+        path: 'now_playing',
         element: <Movies />, // 인기 영화 목록
       },
       {
