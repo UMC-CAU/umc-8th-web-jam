@@ -1,7 +1,7 @@
 // src/pages/movies.tsx
-import { ReactElement, useEffect, useState } from "react";
-import axios from "axios";
-import { Movie, MovieResponse } from "../types/movie";
+import { ReactElement, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Movie, MovieResponse } from '../types/movie';
 
 export default function Movies(): ReactElement {
   const [movies, setMovies] = useState<Movie[]>([]); // 영화 목록을 저장할 상태 변수
@@ -10,15 +10,15 @@ export default function Movies(): ReactElement {
     // TMDB API에 axios를 이용해 GET 요청 날리는 함수
     const fetchMovies = async () => {
       const res = await axios.get<MovieResponse>(
-        "https://api.themoviedb.org/3/movie/popular?language=en-US&page=1", // Query Parameter: en-US, page 1으로 되어 있음
+        'https://api.themoviedb.org/3/movie/popular?language=en-US&page=1', // Query Parameter: en-US, page 1으로 되어 있음
         {
           headers: {
-            accept: "application/json", // 데이터 형식
+            accept: 'application/json', // 데이터 형식
             Authorization:
               // API 읽기 토큰 값
-              "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZDVjZTMzNWJjMTVmNzczMWM2MjNkNTI1MmMyZDU0MiIsIm5iZiI6MTc0MzUwNzcyOS43MDUsInN1YiI6IjY3ZWJkMTExMzg1ZWEwMWI4OTdhYWUzNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.KDbzc39Q-TuRwGRjjAU52FBJC0AtupmBkYqfXnsN5R4",
+              'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZDVjZTMzNWJjMTVmNzczMWM2MjNkNTI1MmMyZDU0MiIsIm5iZiI6MTc0MzUwNzcyOS43MDUsInN1YiI6IjY3ZWJkMTExMzg1ZWEwMWI4OTdhYWUzNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.KDbzc39Q-TuRwGRjjAU52FBJC0AtupmBkYqfXnsN5R4',
           },
-        }
+        },
       );
       setMovies(res.data.results); // 받아온 데이터 중 results(영화 배열)를 상태에 저장
     };
