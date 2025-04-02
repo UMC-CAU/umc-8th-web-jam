@@ -17,7 +17,7 @@ const Navbar = () => {
         to="/popular"
         className={({ isActive }) =>
           isActive
-            ? 'text-blue-600 font-semisemibold'
+            ? 'text-blue-600 font-semibold'
             : 'text-gray-600 font-semibold hover:text-blue-500'
         }
       >
