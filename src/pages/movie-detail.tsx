@@ -118,7 +118,7 @@ export default function MovieDetailPage(): ReactElement | null {
         {cast.map((actor) => (
           <li
             key={actor.id}
-            className="flex flex-col bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl transition duration-300 h-full"
+            className="flex flex-col bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition duration-300 h-full"
           >
             <div className="w-full aspect-[2/3] bg-gray-200">
               <img
