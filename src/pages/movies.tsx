@@ -91,7 +91,7 @@ export default function Movies(): ReactElement {
           <div className="animate-spin rounded-full h-24 w-24 border-t-4 border-b-4 border-blue-500" />
         </div>
       ) : (
-        <ul className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <ul className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {movies.map((movie) => (
             <li key={movie.id} className="relative group">
               <Link to={`/movies/${movie.id}`}>
