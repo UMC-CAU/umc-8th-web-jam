@@ -9,7 +9,6 @@ import MovieDetail from './pages/movie-detail.tsx';
 import RootLayout from './layout/root-layout.tsx';
 import MovieLayout from './layout/movie-layout.tsx';
 
-
 const router = createBrowserRouter([
   {
     path: '/',
@@ -40,11 +39,11 @@ const router = createBrowserRouter([
         path: 'movies/:movieId',
         element: <MovieLayout />,
         children: [
-            {
+          {
             index: true,
             element: <MovieDetail />,
-            },
-        ]
+          },
+        ],
       },
     ],
   },

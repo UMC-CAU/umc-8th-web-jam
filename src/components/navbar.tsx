@@ -2,33 +2,33 @@ import { NavLink } from 'react-router-dom'; // NavLink는 isActive 값을 자동
 
 const Navbar = () => {
   return (
-    <nav className="flex space-x-6 p-4 bg-gray-100">
-      <NavLink to="/" className={({ isActive }) => (isActive ? 'text-blue-600' : 'text-gray-600')}>
-        홈
+    <nav className="flex space-x-6 p-4 bg-gray-100 rounded-xl">
+      <NavLink to="/" className={({ isActive }) => (isActive ? 'text-blue-600 font-semibold' : 'text-gray-600 font-semibold hover:text-blue-500')}>
+        🎬 Home
       </NavLink>
       <NavLink
         to="/popular"
-        className={({ isActive }) => (isActive ? 'text-blue-600' : 'text-gray-600')}
+        className={({ isActive }) => (isActive ? 'text-blue-600 font-semisemibold' : 'text-gray-600 font-semibold hover:text-blue-500')}
       >
-        인기 영화
+        ❤️ Popular
       </NavLink>
       <NavLink
         to="/upcoming"
-        className={({ isActive }) => (isActive ? 'text-blue-600' : 'text-gray-600')}
+        className={({ isActive }) => (isActive ? 'text-blue-600 font-semibold' : 'text-gray-600 font-semibold hover:text-blue-500')}
       >
-        개봉 예정 영화
+        📆 Upcoming
       </NavLink>
       <NavLink
         to="/top_rated"
-        className={({ isActive }) => (isActive ? 'text-blue-600' : 'text-gray-600')}
+        className={({ isActive }) => (isActive ? 'text-blue-600 font-semibold' : 'text-gray-600 font-semibold hover:text-blue-500')}
       >
-        좋은 평점 영화
+        💯 Top Rated
       </NavLink>
       <NavLink
         to="/now_playing"
-        className={({ isActive }) => (isActive ? 'text-blue-600' : 'text-gray-600')}
+        className={({ isActive }) => (isActive ? 'text-blue-600 font-semibold' : 'text-gray-600 font-semibold hover:text-blue-500')}
       >
-        현재 상영 영화
+        🍿 On Screen
       </NavLink>
     </nav>
   );

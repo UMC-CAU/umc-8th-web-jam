@@ -13,7 +13,8 @@ export default function Movies(): ReactElement {
   const [totalPages, setTotalPages] = useState(0);
 
   // fetchMovies 함수 분리
-  const fetchMovies = async (targetPage: number) => { // page를 받아서 사용
+  const fetchMovies = async (targetPage: number) => {
+    // page를 받아서 사용
     setIsLoading(true);
     try {
       const path = location.pathname.replace('/', '');
@@ -25,7 +26,7 @@ export default function Movies(): ReactElement {
             Authorization:
               'Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIxZDVjZTMzNWJjMTVmNzczMWM2MjNkNTI1MmMyZDU0MiIsIm5iZiI6MTc0MzUwNzcyOS43MDUsInN1YiI6IjY3ZWJkMTExMzg1ZWEwMWI4OTdhYWUzNSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.KDbzc39Q-TuRwGRjjAU52FBJC0AtupmBkYqfXnsN5R4',
           },
-        }
+        },
       );
       setMovies(res.data.results); // 영화 정보들
       setTotalPages(res.data.total_pages); // 전체 페이지 수
@@ -93,7 +94,7 @@ export default function Movies(): ReactElement {
         <ul className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {movies.map((movie) => (
             <li key={movie.id} className="relative group">
-                <Link to={`/movies/${movie.id}`}>
+              <Link to={`/movies/${movie.id}`}>
                 <img
                   src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
                   alt={movie.title}
@@ -103,7 +104,7 @@ export default function Movies(): ReactElement {
                   <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
                   <p className="text-sm line-clamp-5 px-4">{movie.overview}</p>
                 </div>
-                </Link>
+              </Link>
             </li>
           ))}
         </ul>
