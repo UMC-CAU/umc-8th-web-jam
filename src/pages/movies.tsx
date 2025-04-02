@@ -2,7 +2,7 @@
 import { ReactElement, useEffect, useState } from 'react';
 import axios from 'axios';
 import { Movie, MovieResponse } from '../types/movie';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 
 export default function Movies(): ReactElement {
   const location = useLocation();
@@ -93,15 +93,17 @@ export default function Movies(): ReactElement {
         <ul className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {movies.map((movie) => (
             <li key={movie.id} className="relative group">
-              <img
-                src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-                alt={movie.title}
-                className="rounded-xl shadow-md mx-auto group-hover:blur-sm group-hover:scale-110 transition duration-300"
-              />
-              <div className="absolute inset-0 flex flex-col justify-center items-center text-blue-200 opacity-0 group-hover:opacity-100 transition duration-300">
-                <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
-                <p className="text-sm line-clamp-5 px-4">{movie.overview}</p>
-              </div>
+                <Link to={`/movies/${movie.id}`}>
+                <img
+                  src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
+                  alt={movie.title}
+                  className="rounded-xl shadow-md mx-auto group-hover:blur-sm group-hover:scale-110 transition duration-300"
+                />
+                <div className="absolute inset-0 flex flex-col justify-center items-center text-blue-200 opacity-0 group-hover:opacity-100 transition duration-300">
+                  <h3 className="text-lg font-bold mb-2">{movie.title}</h3>
+                  <p className="text-sm line-clamp-5 px-4">{movie.overview}</p>
+                </div>
+                </Link>
             </li>
           ))}
         </ul>

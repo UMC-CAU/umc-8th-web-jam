@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import HomePage from './pages/home.tsx';
 import NotFound from './pages/not-found.tsx';
 import Movies from './pages/movies.tsx';
+import MovieDetail from './pages/movie-detail.tsx';
 import RootLayout from './layout/root-layout.tsx';
 
 const router = createBrowserRouter([
@@ -35,7 +36,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'movies/:movieId',
-        // element: <MovieDetail/>  // 상세 영화 정보
+         element: <MovieDetail />  // 상세 영화 정보
       },
     ],
   },
