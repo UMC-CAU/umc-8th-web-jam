@@ -1,54 +1,20 @@
-// src/pages/movie-detail.tsx
-import { ReactElement, useEffect, useState } from 'react';
-import axios from 'axios';
-import { MovieDetailResponse } from '../types/movie-detail';
-import { Cast, CastResponse } from '../types/credits';
+import { ReactElement } from 'react';
 import { useParams } from 'react-router-dom';
+import useCustomFetch from '../hooks/useCustomFetch';
+import { MovieDetailResponse } from '../types/movie-detail';
+import { CastResponse, Cast } from '../types/credits';
 
 export default function MovieDetailPage(): ReactElement | null {
   const { movieId } = useParams();
-  const [movie, setMovie] = useState<MovieDetailResponse | null>(null);
-  const [cast, setCast] = useState<Cast[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const movieUrl = `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`;
+  const creditsUrl = `https://api.themoviedb.org/3/movie/${movieId}/credits?language=en-US`;
 
-  useEffect(() => {
-    const fetchMovie = async () => {
-      setIsLoading(true);
-      try {
-        const resMovie = await axios.get<MovieDetailResponse>(
-          `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`,
-          {
-            headers: {
-              accept: 'application/json',
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
-            },
-          },
-        );
-        setMovie(resMovie.data);
-        const resCast = await axios.get<CastResponse>(
-          `https://api.themoviedb.org/3/movie/${movieId}/credits?language=en-US`,
-          {
-            headers: {
-              accept: 'application/json',
-              Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
-            },
-          },
-        );
-        setCast(resCast.data.cast);
-        setError(null);
-      } catch (err) {
-        console.error('영화 정보를 불러오는 데 실패했습니다.', err);
-        setError('영화 정보를 불러오는 데 실패했어요. 다시 시도해 주세요.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const { data: movie, error: movieError, isLoading: movieLoading } = useCustomFetch<MovieDetailResponse>(movieUrl);
+  const { data: castData, error: castError, isLoading: castLoading } = useCustomFetch<CastResponse>(creditsUrl);
 
-    if (movieId) fetchMovie();
-  }, [movieId]);
+  const cast: Cast[] = castData?.cast || [];
 
-  if (isLoading) {
+  if (movieLoading || castLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500" />
@@ -56,8 +22,8 @@ export default function MovieDetailPage(): ReactElement | null {
     );
   }
 
-  if (error) {
-    return <div className="text-center text-red-600 text-xl font-semibold mt-10">{error}</div>;
+  if (movieError || castError) {
+    return <div className="text-center text-red-600 text-xl font-semibold mt-10">{movieError || castError}</div>;
   }
 
   if (!movie) return null;
@@ -82,42 +48,21 @@ export default function MovieDetailPage(): ReactElement | null {
 
         <div className="w-full md:w-2/3 space-y-2 text-left text-lg leading-relaxed md:ml-4">
           <h2 className="text-4xl font-bold">{movie.title}</h2>
-          <p>
-            <strong>🗓 release date</strong> {movie.release_date}
-          </p>
-          <p>
-            <strong>🎭 genres</strong> {movie.genres.map((g) => g.name).join(', ')}
-          </p>
-          <p>
-            <strong>⏱️ runtime</strong> {movie.runtime} minutes
-          </p>
-          <p>
-            <strong>🔥 popularity</strong> {movie.popularity.toLocaleString()}
-          </p>
-          <p>
-            <strong>⭐ vote average</strong> {movie.vote_average.toFixed(1)} / 10
-          </p>
-          <p>
-            <strong>💸 budget</strong> ${movie.budget.toLocaleString()}
-          </p>
-          <p>
-            <strong>🏢 production company</strong>{' '}
-            {movie.production_companies.map((c) => c.name).join(', ') || '정보 없음'}
-          </p>
-          <p>
-            <strong>🌍 production country</strong>{' '}
-            {movie.production_countries.map((c) => c.name).join(', ')}
-          </p>
-
+          <p><strong>🗓 release date</strong> {movie.release_date}</p>
+          <p><strong>🎭 genres</strong> {movie.genres.map((g) => g.name).join(', ')}</p>
+          <p><strong>⏱️ runtime</strong> {movie.runtime} minutes</p>
+          <p><strong>🔥 popularity</strong> {movie.popularity.toLocaleString()}</p>
+          <p><strong>⭐ vote average</strong> {movie.vote_average.toFixed(1)} / 10</p>
+          <p><strong>💸 budget</strong> ${movie.budget.toLocaleString()}</p>
+          <p><strong>🏢 production company</strong> {movie.production_companies.map((c) => c.name).join(', ') || '정보 없음'}</p>
+          <p><strong>🌍 production country</strong> {movie.production_countries.map((c) => c.name).join(', ')}</p>
           <p className="mt-4">{movie.overview}</p>
         </div>
       </div>
+
       <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6 p-8">
         {cast.map((actor) => (
-          <li
-            key={actor.id}
-            className="flex flex-col bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition duration-300 h-full"
-          >
+          <li key={actor.id} className="flex flex-col bg-white shadow-md rounded-xl overflow-hidden hover:shadow-xl hover:scale-105 transition duration-300 h-full">
             <div className="w-full aspect-[2/3] bg-gray-200">
               <img
                 src={
@@ -129,7 +74,6 @@ export default function MovieDetailPage(): ReactElement | null {
                 className="w-full h-full object-cover"
               />
             </div>
-
             <div className="flex-grow p-4 text-center flex flex-col justify-center min-h-[100px]">
               <h3 className="text-base font-semibold text-gray-800">{actor.name}</h3>
               <p className="text-sm text-gray-600 line-clamp-2">{actor.character}</p>

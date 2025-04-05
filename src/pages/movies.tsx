@@ -1,56 +1,38 @@
 // src/pages/movies.tsx
-import { ReactElement, useEffect, useState } from 'react';
-import axios from 'axios';
-import { Movie, MovieResponse } from '../types/movie';
+import { ReactElement, useState } from 'react';
+import useCustomFetch from '../hooks/useCustomFetch';
+import { MovieResponse } from '../types/movie';
 import { useLocation, Link } from 'react-router-dom';
 
 export default function Movies(): ReactElement {
   const location = useLocation();
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
 
-  // fetchMovies 함수 분리
-  const fetchMovies = async (targetPage: number) => {
-    // page를 받아서 사용
-    setIsLoading(true);
-    try {
-      const path = location.pathname.replace('/', '');
-      const res = await axios.get<MovieResponse>(
-        `https://api.themoviedb.org/3/movie/${path}?language=en-US&page=${targetPage}`,
-        {
-          headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_TMDB_API_KEY}`,
-          },
-        },
-      );
-      setMovies(res.data.results); // 영화 정보들
-      setTotalPages(res.data.total_pages); // 전체 페이지 수
-      setError(null);
-    } catch (err) {
-      console.error('영화 정보를 불러오는 데 실패했습니다.', err);
-      setError('영화 정보를 불러오는 데 실패했어요. 다시 시도해 주세요.');
-    } finally {
-      setIsLoading(false); // 영화 정보 다 불러왔으면 로딩 종료
+  const path = location.pathname.replace('/', '');
+  const url = `https://api.themoviedb.org/3/movie/${path}?language=en-US&page=${page}`;
+  const { data: response, isLoading, error } = useCustomFetch<MovieResponse>(url);
+
+  const movies = response?.results ?? [];
+  const totalPages = response?.total_pages ?? 0;
+  //console.log(totalPages);
+// response가 존재하면 내부의 results 또는 total_pages 값을 사용,
+// 존재하지 않으면 각각 빈 배열, 0으로 기본값을 설정
+// 옵셔널 체이닝과 nullish 병합 연산자(??)를 함께 사용하여 response가 아직 undefined거나 null일 수 있음'을 안전하게 처리
+// 기존에는 커스텀 훅 추가하고도 아래와 같이 불필요한 useEffect를 사용했었음
+
+/*
+useEffect(() => {
+    if (data) {
+      setMovies(data.results);
+      setTotalPages(data.total_pages);
     }
-  };
+  }, [data]);
+*/
 
-  // 경로가 바뀌면 페이지를 1로 리셋하고 fetch
-  useEffect(() => {
-    setPage(1);
-    fetchMovies(1);
-  }, [location.pathname]);
-
-  // 페이지 버튼 눌렀을 때 fetch
-  useEffect(() => {
-    if (page !== 1) {
-      fetchMovies(page);
-    }
-  }, [page]);
-
+// 하지만 커스텀 훅을 사용함으로써 카테고리 넘어갈 때 1페이지로 가지 않는 문제는 다시 해결 전으로...
+// 페이지 별로 URL을 만들까? Ex) /upcoming/12
+// 근데 URL을 바꿔도 useEffect 가 실행되지 useCustomFetch가 실행되는 건 아니지 않나?
+// -> useCustomFetch의 구조를 변경?
   return (
     <div className="p-4">
       <div className="flex justify-center items-center space-x-4 my-6">
