@@ -21,7 +21,7 @@ export type SpokenLanguage = {
   name: string;
 };
 
-export type MovieDetail = {
+export type MovieDetailResponse = {
   id: number;
   title: string;
   overview: string;

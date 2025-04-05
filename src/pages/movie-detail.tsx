@@ -1,13 +1,13 @@
 // src/pages/movie-detail.tsx
 import { ReactElement, useEffect, useState } from 'react';
 import axios from 'axios';
-import { MovieDetail } from '../types/movie-detail';
+import { MovieDetailResponse } from '../types/movie-detail';
 import { Cast, CastResponse } from '../types/credits';
 import { useParams } from 'react-router-dom';
 
 export default function MovieDetailPage(): ReactElement | null {
   const { movieId } = useParams();
-  const [movie, setMovie] = useState<MovieDetail | null>(null);
+  const [movie, setMovie] = useState<MovieDetailResponse | null>(null);
   const [cast, setCast] = useState<Cast[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -16,7 +16,7 @@ export default function MovieDetailPage(): ReactElement | null {
     const fetchMovie = async () => {
       setIsLoading(true);
       try {
-        const resMovie = await axios.get<MovieDetail>(
+        const resMovie = await axios.get<MovieDetailResponse>(
           `https://api.themoviedb.org/3/movie/${movieId}?language=en-US`,
           {
             headers: {
