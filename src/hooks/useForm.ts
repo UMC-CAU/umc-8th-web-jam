@@ -3,81 +3,75 @@ import { useState } from 'react';
 type FormValues = {
   email: string;
   password: string;
+  confirmPassword: string;
 };
 
 type FormErrors = {
   // 에러가 있을 땐 string 메시지, 없으면 undefined
   email?: string;
   password?: string;
+  confirmPassword?: string;
 };
 
 export const useForm = () => {
+  // 입력값 상태 관리
   const [values, setValues] = useState<FormValues>({
     email: '',
     password: '',
+    confirmPassword: '',
   });
-
+  // 에러 메시지 상태 관리
   const [errors, setErrors] = useState<FormErrors>({});
 
+  // 모든 input의 onChange 이벤트를 처리
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // input에서 name과 value를 추출 (name은 "email" 또는 "password")
-    const { name, value } = e.target; // { "email" : "123@example.com"}
+    const { name, value } = e.target;
+    // 현재 입력된 값으로 전체 values 업데이트
+    const updatedValues = { ...values, [name]: value };
+    setValues(updatedValues);
 
-    // 기존 입력값들은 그대로 두고, 지금 바뀐 input 하나만 업데이트
-    setValues((prev) => ({ ...prev, [name]: value }));
+    const newErrors: FormErrors = { ...errors };
 
-    // 이메일 유효성 검사
+    // 이메일 검증 (원한다면 여기에 정규식 추가 가능)
     if (name === 'email') {
-      // 이메일 형식 정규식
-      const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-      if (!emailRegex.test(value)) {
-        setErrors((prev) => ({ ...prev, email: '올바른 이메일 형식을 입력해주세요.' }));
+      if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value)) {
+        newErrors.email = '올바른 이메일 형식을 입력해주세요.';
       } else {
-        // 에러가 없는 경우
-        //이메일 에러를 현재 에러들에서 제거
-        setErrors((prev) => {
-          const { email, ...rest } = prev;
-          return rest;
-        });
+        delete newErrors.email;
       }
     }
 
-    // 비밀번호 유효성 검사
+    // 비밀번호 길이 검사
     if (name === 'password') {
       if (value.length < 8) {
-        setErrors((prev) => ({ ...prev, password: '비밀번호는 8자 이상이어야 합니다.' }));
+        newErrors.password = '비밀번호는 8자 이상이어야 합니다.';
       } else {
-        // 에러가 없는 경우
-        // 비밀번호 에러를 현재 에러들에서 제거
-        setErrors((prev) => {
-          const { password, ...rest } = prev;
-          return rest;
-        });
+        delete newErrors.password;
+      }
+
+      // password 변경 시 confirmPassword도 다시 확인
+      if (updatedValues.confirmPassword && updatedValues.confirmPassword !== value) {
+        newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
+      } else {
+        delete newErrors.confirmPassword;
       }
     }
-  };
 
-  const validate = () => {
-    const newErrors: FormErrors = {};
-    const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-
-    if (!emailRegex.test(values.email)) {
-      newErrors.email = '올바른 이메일 형식을 입력해주세요.';
-    }
-
-    if (values.password.length < 8) {
-      newErrors.password = '비밀번호는 8자 이상이어야 합니다.';
+    // 비밀번호 재확인 검사
+    if (name === 'confirmPassword') {
+      if (value !== updatedValues.password) {
+        newErrors.confirmPassword = '비밀번호가 일치하지 않습니다.';
+      } else {
+        delete newErrors.confirmPassword;
+      }
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   return {
     values,
     errors,
     handleChange,
-    validate,
   };
 };
