@@ -17,19 +17,17 @@ const SignUp = () => {
     Boolean(errors.confirmPassword);
 
   const handleNext = () => {
-    console.log('이메일 유효 → 다음 단계로');
-    setStep(1); // 다음 단계로 이동
+    console.log('다음 단계로');
+    setStep((prev) => prev + 1); // 다음 단계로 이동
   };
 
   const handleSignUp = () => {
     console.log('회원가입');
-    setStep(2); // 다음 단계로 이동
   };
 
   return (
     <div className="min-h-screen flex justify-center items-center px-4">
       <div className="w-full max-w-sm">
-        {/* 상단 헤더 */}
         <div className="relative mb-6 h-8">
           <button onClick={() => navigate(-1)} className="absolute left-0 text-xl">
             ←
@@ -39,7 +37,6 @@ const SignUp = () => {
           </h1>
         </div>
 
-        {/* 단계 0: 이메일 입력 */}
         {step === 0 && (
           <>
             <button className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]">
@@ -76,7 +73,6 @@ const SignUp = () => {
           </>
         )}
 
-        {/* 단계 1: 비밀번호 입력 */}
         {step === 1 && (
           <>
             {/* 입력했던 이메일 보여주기 */}
@@ -130,7 +126,7 @@ const SignUp = () => {
             )}
 
             <button
-              onClick={isPasswordDisabled ? undefined : handleSignUp}
+              onClick={isPasswordDisabled ? undefined : handleNext}
               className={`w-full py-2 rounded text-white ${
                 isPasswordDisabled
                   ? 'bg-gray-500 cursor-not-allowed pointer-events-none'
@@ -139,6 +135,27 @@ const SignUp = () => {
             >
               가입하기
             </button>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div className="flex justify-center items-center flex-col">
+              <img src="/anonymous.jpg" className="w-80 h-80 rounded-full" />
+              <input
+                type={'text'}
+                name='nickname'
+                placeholder="닉네임을 입력하세요."
+                className="w-full border p-2 rounded mb-2 mt-10 bg-transparent"
+              />
+              <button
+                onClick={handleSignUp}
+                className={`w-full py-2 rounded text-white hover:bg-[#1B2631] bg-black '
+              }`}
+              >
+                가입하기
+              </button>
+            </div>
           </>
         )}
       </div>
