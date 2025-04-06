@@ -144,7 +144,7 @@ const SignUp = () => {
               <img src="/anonymous.jpg" className="w-80 h-80 rounded-full" />
               <input
                 type={'text'}
-                name='nickname'
+                name="nickname"
                 placeholder="닉네임을 입력하세요."
                 className="w-full border p-2 rounded mb-2 mt-10 bg-transparent"
               />

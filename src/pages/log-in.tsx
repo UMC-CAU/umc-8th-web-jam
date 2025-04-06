@@ -3,12 +3,10 @@ import { useForm } from '../hooks/useForm';
 
 const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
-  const { values, errors, handleChange, validate } = useForm();
+  const { values, errors, handleChange } = useForm();
 
   const handleLogin = () => {
-    if (validate()) {
-      console.log('로그인 시도:', values);
-    }
+    console.log('로그인 시도:', values);
     // 추후에 로그인 로직 이쪽에
   };
 
