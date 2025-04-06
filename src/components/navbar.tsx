@@ -12,7 +12,7 @@ const Navbar = () => {
             로그인
           </button>
         </NavLink>
-        <NavLink to="/register">
+        <NavLink to="/sign-up">
           <button className="px-4 py-2 text-sm font-medium text-[#2C3E50] border border-[#2C3E50] rounded hover:bg-[#2C3E50] hover:text-white transition">
             회원가입
           </button>
