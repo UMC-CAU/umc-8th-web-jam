@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .env
+
+# 각종 아이콘
+*.png

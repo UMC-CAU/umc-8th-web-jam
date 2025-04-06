@@ -4,6 +4,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import HomePage from './pages/home.tsx';
 import NotFound from './pages/not-found.tsx';
+import LogIn from './pages/log-in.tsx';
 import RootLayout from './layout/root-layout.tsx';
 
 const router = createBrowserRouter([
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         index: true,
         element: <HomePage />,
+      },
+      {
+        path: 'log-in',
+        element: <LogIn />, // 인기 영화 목록
       },
       /*
       {
