@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from '../hooks/useForm';
+import { User, useLocalStorage } from '../hooks/useLocalStorage';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -8,7 +9,9 @@ const SignUp = () => {
   const { values, errors, handleChange } = useForm();
   const [showPassword, setShowPassword] = useState(false); // 비밀번호 보이는지 여부
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 비밀번호 보이는지 여부
-
+  const [nickname, setNickname] = useState('');
+  const [userList, setUserList] = useLocalStorage<User[]>('users', []); // localStorage에서 "users"라는 key의 값들을 userList로 (없으면 빈 배열)
+  // setUserList는 useLocalStorage 안에서 정의한 setValue 함수
   const isEmailDisabled = !values.email || Boolean(errors.email);
   const isPasswordDisabled =
     !values.password ||
@@ -22,7 +25,24 @@ const SignUp = () => {
   };
 
   const handleSignUp = () => {
-    console.log('회원가입');
+    const newUser = {
+      email: values.email,
+      password: values.password,
+      nickname: nickname, // useForm에서 관리하는 게 아니라 values.에서 가져오는 게 아님
+    };
+
+    // 중복 이메일 체크
+    const isDuplicate = userList.some((user: User) => user.email === newUser.email);
+    if (isDuplicate) {
+      alert('이미 존재하는 이메일입니다.');
+      return;
+    }
+
+    // 유저 리스트에 추가
+    setUserList([...userList, newUser]); // 여기서 useLocalStorage의 setValue() 호출되는 거랑 같음
+
+    alert('회원가입이 완료되었습니다!');
+    navigate('/log-in'); // 회원가입 후 로그인 페이지로 이동
   };
 
   return (
@@ -143,8 +163,10 @@ const SignUp = () => {
             <div className="flex justify-center items-center flex-col">
               <img src="/anonymous.jpg" className="w-80 h-80 rounded-full" />
               <input
-                type={'text'}
+                type="text"
                 name="nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
                 placeholder="닉네임을 입력하세요."
                 className="w-full border p-2 rounded mb-2 mt-10 bg-transparent"
               />
