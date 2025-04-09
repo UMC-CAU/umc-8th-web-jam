@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useLocalStorage, User } from '../hooks/useLocalStorage';
 import { logInSchema } from '../validations/validationSchema';
 
 type LogInFormData = z.infer<typeof logInSchema>;
@@ -10,11 +11,12 @@ type LogInFormData = z.infer<typeof logInSchema>;
 const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
   const [showPassword, setShowPassword] = useState(false);
+  const [userList] = useLocalStorage<User[]>('users', []);
 
   // useForm 훅과 zodResolver 연결
   const {
     register,
-    handleSubmit, // <form> 안에 넣고, type='submit'으로 
+    handleSubmit, // <form> 안에 넣고, type='submit'으로
     watch,
     formState: { errors },
   } = useForm<LogInFormData>({
@@ -27,10 +29,16 @@ const Login = () => {
   });
 
   const handleLogin = (data: LogInFormData) => {
-    console.log('입력된 데이터', data);
-    alert('로그인되었습니다!');
-  // 로그인 로직 (ex. localStorage 검증 등) 여기에 작성
-    // 추후에 로그인 로직 이쪽에
+    const foundUser = userList.find(
+      (user) => user.email === data.email && user.password === data.password,
+    );
+
+    if (foundUser) {
+      alert(`${foundUser.nickname}님, 환영합니다!`);
+      navigate('/'); 
+    } else {
+      alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+    }
   };
 
   const watchEmail = watch('email');
@@ -89,7 +97,7 @@ const Login = () => {
           )}
 
           <button
-            type='submit'
+            type="submit"
             disabled={isEmailDisabled || isPasswordDisabled}
             className={`w-full py-2 rounded text-white 
             ${isEmailDisabled || isPasswordDisabled ? 'bg-gray-500 cursor-not-allowed pointer-events-none' : 'bg-black hover:bg-[#1B2631]'}
