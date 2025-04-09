@@ -1,22 +1,43 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from '../hooks/useForm';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { logInSchema } from '../validations/validationSchema';
+
+type LogInFormData = z.infer<typeof logInSchema>;
 
 const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
-  const { values, errors, handleChange } = useForm();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = () => {
-    console.log('로그인 시도:', values);
+  // useForm 훅과 zodResolver 연결
+  const {
+    register,
+    handleSubmit, // <form> 안에 넣고, type='submit'으로 
+    watch,
+    formState: { errors },
+  } = useForm<LogInFormData>({
+    resolver: zodResolver(logInSchema),
+    mode: 'onChange',
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  const handleLogin = (data: LogInFormData) => {
+    console.log('입력된 데이터', data);
+    alert('로그인되었습니다!');
+  // 로그인 로직 (ex. localStorage 검증 등) 여기에 작성
     // 추후에 로그인 로직 이쪽에
   };
 
-  const isDisabled =
-    !values.email || // 이메일 입력이 비어 있으면 true → 버튼 비활성화
-    !values.password || // 비밀번호 입력이 비어 있으면 true → 버튼 비활성화
-    Boolean(errors.email) || // 이메일 형식이 잘못되었을 경우 errors.email에 문자열이 있으므로 → true → 버튼 비활성화
-    Boolean(errors.password); // 비밀번호 유효성 검사 실패 시 → true → 버튼 비활성화
-  // errors.email, errors.password가 string | undefined 타입이라 Boolean으로 감싸야 함
+  const watchEmail = watch('email');
+  const watchPassword = watch('password');
 
+  const isEmailDisabled = !watchEmail || !!errors.email;
+  const isPasswordDisabled = !watchPassword || !!errors.password;
   return (
     <div className="min-h-screen flex justify-center items-center px-4">
       <div className="w-full max-w-sm">
@@ -28,46 +49,55 @@ const Login = () => {
             로그인
           </h1>
         </div>
+        <form onSubmit={handleSubmit(handleLogin)}>
+          <button className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]">
+            <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
+            구글 로그인
+          </button>
 
-        <button className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]">
-          <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
-          구글 로그인
-        </button>
+          <div className="flex items-center justify-center my-4">
+            <hr className="flex-grow border-t" />
+            <span className="mx-2 text-sm">OR</span>
+            <hr className="flex-grow border-t" />
+          </div>
 
-        <div className="flex items-center justify-center my-4">
-          <hr className="flex-grow border-t" />
-          <span className="mx-2 text-sm">OR</span>
-          <hr className="flex-grow border-t" />
-        </div>
+          <input
+            type="email"
+            placeholder="이메일을 입력해주세요!"
+            {...register('email')}
+            className="w-full border p-2 rounded mb-1 bg-transparent"
+          />
+          {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email.message}</p>}
 
-        <input
-          type="email"
-          name="email"
-          placeholder="이메일을 입력해주세요!"
-          value={values.email}
-          onChange={handleChange}
-          className="w-full border p-2 rounded mb-1 bg-transparent"
-        />
-        {errors.email && <p className="text-red-500 text-sm mb-2">{errors.email}</p>}
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="비밀번호를 입력해주세요!"
+              {...register('password')}
+              className="w-full border p-2 rounded mb-2 bg-transparent pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 top-1.5 text-xl text-gray-300"
+            >
+              {showPassword ? '🙈' : '🙉'}
+            </button>
+          </div>
+          {errors.password && (
+            <p className="text-red-500 text-sm mb-2">{errors.password.message}</p>
+          )}
 
-        <input
-          type="password"
-          name="password"
-          placeholder="비밀번호를 입력해주세요!"
-          value={values.password}
-          onChange={handleChange}
-          className="w-full border p-2 rounded mb-1 bg-transparent"
-        />
-        {errors.password && <p className="text-red-500 text-sm mb-4">{errors.password}</p>}
-
-        <button
-          onClick={isDisabled ? undefined : handleLogin}
-          className={`w-full py-2 rounded text-white 
-            ${isDisabled ? 'bg-gray-500 cursor-not-allowed pointer-events-none' : 'bg-black hover:bg-[#1B2631]'}
+          <button
+            type='submit'
+            disabled={isEmailDisabled || isPasswordDisabled}
+            className={`w-full py-2 rounded text-white 
+            ${isEmailDisabled || isPasswordDisabled ? 'bg-gray-500 cursor-not-allowed pointer-events-none' : 'bg-black hover:bg-[#1B2631]'}
           `}
-        >
-          로그인
-        </button>
+          >
+            로그인
+          </button>
+        </form>
       </div>
     </div>
   );

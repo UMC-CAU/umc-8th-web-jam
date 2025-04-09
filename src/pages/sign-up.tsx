@@ -4,19 +4,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocalStorage, User } from '../hooks/useLocalStorage';
+import { signUpSchema } from '../validations/validationSchema';
 
 // 유효성 검사 스키마 - 따로 파일로 관리하는 것이 좋을까?
-const signUpSchema = z
-  .object({
-    email: z.string().email('올바른 이메일 형식이 아닙니다'),
-    password: z.string().min(8, '비밀번호는 8자 이상이어야 합니다'),
-    confirmPassword: z.string(),
-    nickname: z.string().min(2, '닉네임은 2자 이상 입력해주세요'),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: '비밀번호가 일치하지 않습니다',
-    path: ['confirmPassword'],
-  });
 
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
@@ -27,16 +17,20 @@ const SignUp = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [userList, setUserList] = useLocalStorage<User[]>('users', []);
 
+  //useForm 훅과 zodResolver 연결
   const {
-    register,
-    handleSubmit,
+    register, // 해당 필드의 값을 상태에 등록하고 추적할 수 있게 함 (input 요소와 react-hook-form 연결)
+    handleSubmit, // 내부적으로 zodResolver를 통해 유효성 검사를 먼저 수행
+    // 유효하면 onSubmit에 들어오는 함수 실행
+    // 유효하지 않으면 errors 자동 반영하고 함수 실행 안 함
     trigger,
+    // 수동으로 특정 필드의 유효성 검사를 실행
     getValues,
     watch,
-    formState: { errors },
+    formState: { errors }, // 각 필드의 유효성 검사 결과가 담긴 객체
   } = useForm<SignUpFormData>({
-    resolver: zodResolver(signUpSchema),
-    mode: 'onChange',
+    resolver: zodResolver(signUpSchema), //zodResolver로 유효성 검사를 zod에 위임
+    mode: 'onChange', // 실시간 검증
     defaultValues: {
       email: '',
       password: '',
@@ -56,6 +50,7 @@ const SignUp = () => {
   const isNicknameDisabled = !watchNickname || !!errors.nickname;
 
   const handleNextStep = async () => {
+    // trigger를 통해 각 스텝에서 해당 필드만 검사
     const isValid =
       (step === 0 && (await trigger('email'))) ||
       (step === 1 && (await trigger(['password', 'confirmPassword']))) ||
