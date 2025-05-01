@@ -6,7 +6,9 @@ import HomePage from './pages/home.tsx';
 import NotFound from './pages/not-found.tsx';
 import LogIn from './pages/log-in.tsx';
 import SignUp from './pages/sign-up.tsx';
+import MyPage from './pages/MyPage.tsx';
 import RootLayout from './layout/root-layout.tsx';
+import ProtectedRoute from './components/protectedRoute.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,17 +28,14 @@ const router = createBrowserRouter([
         path: 'sign-up',
         element: <SignUp />, // 인기 영화 목록
       },
-      /*
       {
-        path: 'movies/:movieId',
-        element: <MovieLayout />,
-        children: [
-          {
-            index: true,
-            element: <MovieDetail />,
-          },
-        ],
-      },*/
+        path: "my",
+        element: (
+          <ProtectedRoute>
+            <MyPage/>,
+          </ProtectedRoute>
+        )
+      },
     ],
   },
 ]);
