@@ -8,7 +8,7 @@ import LogIn from './pages/log-in.tsx';
 import SignUp from './pages/sign-up.tsx';
 import MyPage from './pages/MyPage.tsx';
 import RootLayout from './layout/root-layout.tsx';
-import ProtectedRoute from './components/protectedRoute.tsx';
+import ProtectedRoute from './components/ProtectedRoute.tsx';
 
 const router = createBrowserRouter([
   {
