@@ -1,21 +1,38 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
+import { User, useLocalStorage } from '../hooks/useLocalStorage';
 
 interface AuthContextType {
+  currentUser: User | null;
+  accessToken: string;
+  refreshToken: string;
   isLoggedIn: boolean; // 로그인 여부
-  login: () => void; // 로그인
+  login: (user: User, at: string, rt: string) => void; // 로그인
   logout: () => void; // 로그아웃
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false); // 로그인 상태 여부
+  const [currentUser, setCurrentUser] = useLocalStorage<User | null>('currentUser', null);
+  const [accessToken, setAccessToken] = useLocalStorage<string>('accessToken', '');
+  const [refreshToken, setRefreshToken] = useLocalStorage<string>('refreshToken', '');
 
-  const login = () => setIsLoggedIn(true);
-  const logout = () => setIsLoggedIn(false);
+  const login = (user: User, at: string, rt: string) => {
+    setCurrentUser(user);
+    setAccessToken(at);
+    setRefreshToken(rt);
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    setAccessToken('');
+    setRefreshToken('');
+  };
+
+  const isLoggedIn = !!currentUser && !!accessToken;
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+    <AuthContext.Provider value={{ currentUser, accessToken, refreshToken, isLoggedIn, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

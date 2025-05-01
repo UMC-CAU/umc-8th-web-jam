@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocalStorage, User } from '../hooks/useLocalStorage';
 import { logInSchema } from '../validations/validationSchema';
+import { useAuth } from '../context/AuthContext';
 
 type LogInFormData = z.infer<typeof logInSchema>;
 
@@ -12,6 +13,7 @@ const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
   const [showPassword, setShowPassword] = useState(false);
   const [userList] = useLocalStorage<User[]>('users', []);
+  const { login } = useAuth(); 
 
   // useForm 훅과 zodResolver 연결
   const {
@@ -34,6 +36,13 @@ const Login = () => {
     );
 
     if (foundUser) {
+      // 임시 토큰 생성 (서버 연동 전까지는 하드코딩)
+      const dummyAccessToken = 'ACCESS_TOKEN_123';
+      const dummyRefreshToken = 'REFRESH_TOKEN_456';
+
+      // 전역 상태 + localStorage 저장
+      login(foundUser, dummyAccessToken, dummyRefreshToken);
+
       alert(`${foundUser.nickname}님, 환영합니다!`);
       navigate('/'); 
     } else {
