@@ -50,6 +50,10 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google/login`;
+  }
+
   const watchEmail = watch('email');
   const watchPassword = watch('password');
 
@@ -67,10 +71,14 @@ const Login = () => {
           </h1>
         </div>
         <form onSubmit={handleSubmit(handleLogin)}>
-          <button className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]">
-            <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
-            구글 로그인
-          </button>
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]"
+        >
+          <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
+          구글 로그인
+        </button>
 
           <div className="flex items-center justify-center my-4">
             <hr className="flex-grow border-t" />

@@ -4,6 +4,7 @@ export type User = {
   email: string;
   password: string;
   nickname: string;
+  id: string; // || null?
 };
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
