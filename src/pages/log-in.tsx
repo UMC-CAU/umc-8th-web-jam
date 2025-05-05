@@ -41,8 +41,6 @@ const Login = () => {
         id: result.data.id,
         nickname: result.data.name,
         email: data.email,
-        bio: '',
-        avatar: '',
       };
   
       const accessToken = result.data.accessToken;
@@ -54,6 +52,7 @@ const Login = () => {
       navigate('/');
     } catch (error) {
       alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+      console.log(error);
     }
   };
 
