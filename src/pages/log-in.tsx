@@ -3,16 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useLocalStorage, User } from '../hooks/useLocalStorage';
+// import { useLocalStorage, User } from '../hooks/useLocalStorage';
 import { logInSchema } from '../validations/validationSchema';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 
 type LogInFormData = z.infer<typeof logInSchema>;
 
 const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
   const [showPassword, setShowPassword] = useState(false);
-  const [userList] = useLocalStorage<User[]>('users', []);
+  // const [userList] = useLocalStorage<User[]>('users', []);
   const { login } = useAuth(); 
 
   // useForm 훅과 zodResolver 연결
@@ -30,22 +31,28 @@ const Login = () => {
     },
   });
 
-  const handleLogin = (data: LogInFormData) => {
-    const foundUser = userList.find(
-      (user) => user.email === data.email && user.password === data.password,
-    );
-
-    if (foundUser) {
-      // 임시 토큰 생성 (서버 연동 전까지는 하드코딩)
-      const dummyAccessToken = 'ACCESS_TOKEN_123';
-      const dummyRefreshToken = 'REFRESH_TOKEN_456';
-
-      // 전역 상태 + localStorage 저장
-      login(foundUser, dummyAccessToken, dummyRefreshToken);
-
-      alert(`${foundUser.nickname}님, 환영합니다!`);
-      navigate('/'); 
-    } else {
+  const handleLogin = async (data: LogInFormData) => {
+    try {
+      const response = await api.post('/v1/auth/signin', data, {});
+  
+      const result = response.data;
+  
+      const user = {
+        id: result.data.id,
+        nickname: result.data.name,
+        email: data.email,
+        bio: '',
+        avatar: '',
+      };
+  
+      const accessToken = result.data.accessToken;
+      const refreshToken = result.data.refreshToken;
+  
+      login(user, accessToken, refreshToken); 
+  
+      alert(`${user.nickname}님, 환영합니다!`);
+      navigate('/');
+    } catch (error) {
       alert('이메일 또는 비밀번호가 일치하지 않습니다.');
     }
   };
