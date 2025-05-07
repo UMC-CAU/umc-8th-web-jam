@@ -15,13 +15,12 @@ const OAuthCallback = () => {
     const userId = searchParams.get('userId');
     const email = searchParams.get('email') || 'googleuser@example.com'; // 필요시 백엔드에서 전달
 
-
     if (accessToken && refreshToken && name && userId) {
       const user: User = {
         id: userId,
         email,
         nickname: name,
-        password: "" // 일단 OAuth 로그인은 빈 문자열로
+        password: '', // 일단 OAuth 로그인은 빈 문자열로
       };
 
       login(user, accessToken, refreshToken);

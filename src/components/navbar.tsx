@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'; // isActive 사용 가�
 import { useAuth } from '../context/AuthContext'; // 로그인 상태 확인용
 
 const Navbar = () => {
-  const { isLoggedIn, logout, currentUser } = useAuth(); 
+  const { isLoggedIn, logout, currentUser } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,9 +20,9 @@ const Navbar = () => {
         {isLoggedIn ? (
           <>
             <NavLink to="/my">
-            <button className="px-4 py-2 text-sm text-[#5B3A00] bg-[#FFF8DC] border border-[#FDE7A3] rounded-md shadow-sm hover:bg-[#FDE7A3] hover:text-[#1B2631] transition">
-              {currentUser?.nickname ? `${currentUser.nickname}님, 반가워요` : '마이페이지'}
-            </button>
+              <button className="px-4 py-2 text-sm text-[#5B3A00] bg-[#FFF8DC] border border-[#FDE7A3] rounded-md shadow-sm hover:bg-[#FDE7A3] hover:text-[#1B2631] transition">
+                {currentUser?.nickname ? `${currentUser.nickname}님, 반가워요` : '마이페이지'}
+              </button>
             </NavLink>
             <button
               onClick={handleLogout}

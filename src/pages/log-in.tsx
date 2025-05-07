@@ -14,7 +14,7 @@ const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
   const [showPassword, setShowPassword] = useState(false);
   // const [userList] = useLocalStorage<User[]>('users', []);
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   // useForm 훅과 zodResolver 연결
   const {
@@ -34,20 +34,20 @@ const Login = () => {
   const handleLogin = async (data: LogInFormData) => {
     try {
       const response = await api.post('/v1/auth/signin', data, {});
-  
+
       const result = response.data;
-  
+
       const user = {
         id: result.data.id,
         nickname: result.data.name,
         email: data.email,
       };
-  
+
       const accessToken = result.data.accessToken;
       const refreshToken = result.data.refreshToken;
-  
-      login(user, accessToken, refreshToken); 
-  
+
+      login(user, accessToken, refreshToken);
+
       alert(`${user.nickname}님, 환영합니다!`);
       navigate('/');
     } catch (error) {
@@ -58,7 +58,7 @@ const Login = () => {
 
   const handleGoogleLogin = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google/login`;
-  }
+  };
 
   const watchEmail = watch('email');
   const watchPassword = watch('password');
@@ -77,14 +77,14 @@ const Login = () => {
           </h1>
         </div>
         <form onSubmit={handleSubmit(handleLogin)}>
-        <button
-          type="button"
-          onClick={handleGoogleLogin}
-          className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]"
-        >
-          <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
-          구글 로그인
-        </button>
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full border py-2 rounded mb-4 flex items-center justify-center gap-2 hover:bg-[#1B2631]"
+          >
+            <img src="/google-icon.png" alt="Google" className="w-5 h-5" />
+            구글 로그인
+          </button>
 
           <div className="flex items-center justify-center my-4">
             <hr className="flex-grow border-t" />

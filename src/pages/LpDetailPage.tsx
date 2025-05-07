@@ -32,56 +32,51 @@ export default function LpDetailPage() {
           <button className="text-sm text-gray-400 hover:text-red-400">🗑 삭제</button>
         </div>
       </div>
-  
+
       <h1 className="text-3xl font-bold text-center mb-6">{data.title}</h1>
-  
+
       <div
-  className="relative w-full max-w-xs aspect-square mx-auto mb-6"
-  style={{
-    animation: 'rotateDisk 10s linear infinite',
-  }}
->
-  {/* LP 판 (입체감 + 동심원 질감) */}
-  <div
-    className="w-full h-full rounded-full shadow-2xl relative"
-    style={{
-      background: `
+        className="relative w-full max-w-xs aspect-square mx-auto mb-6"
+        style={{
+          animation: 'rotateDisk 10s linear infinite',
+        }}
+      >
+        {/* LP 판 (입체감 + 동심원 질감) */}
+        <div
+          className="w-full h-full rounded-full shadow-2xl relative"
+          style={{
+            background: `
         repeating-radial-gradient(circle at center, 
           #111 0%, 
           #111 4%, 
           #1c1c1c 4%, 
           #1c1c1c 8%
         )`,
-    }}
-  >
-  </div>
+          }}
+        ></div>
 
-  {/* 중앙 이미지 (조금 더 큼) */}
-  <div className="absolute top-1/2 left-1/2 w-36 h-36 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full  z-10">
-    <img
-      src={data.thumbnail}
-      alt={data.title}
-      className="w-full h-full object-cover"
-    />
-  </div>
+        {/* 중앙 이미지 (조금 더 큼) */}
+        <div className="absolute top-1/2 left-1/2 w-36 h-36 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full  z-10">
+          <img src={data.thumbnail} alt={data.title} className="w-full h-full object-cover" />
+        </div>
 
-  {/* 중앙 구멍 */}
-  <div className="absolute top-1/2 left-1/2 w-7 h-7 -translate-x-1/2 -translate-y-1/2 rounded-full z-20 border border-black bg-[#2C3E50] shadow-inner" />
-</div>
+        {/* 중앙 구멍 */}
+        <div className="absolute top-1/2 left-1/2 w-7 h-7 -translate-x-1/2 -translate-y-1/2 rounded-full z-20 border border-black bg-[#2C3E50] shadow-inner" />
+      </div>
 
-<style>
-  {`
+      <style>
+        {`
     @keyframes rotateDisk {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
   `}
-</style>
-  
+      </style>
+
       <p className="text-white leading-relaxed mb-6 whitespace-pre-line text-center">
         {data.content}
       </p>
-  
+
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         {data.tags.map((tag) => (
           <span
@@ -92,13 +87,13 @@ export default function LpDetailPage() {
           </span>
         ))}
       </div>
-  
+
       <div className="text-center text-sm text-gray-300">
         <button className="text-lg hover:scale-120 transition-transform focus:outline-none">
-            ❤️
+          ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음
-        </div>
+      </div>
     </div>
   );
 }

@@ -1,17 +1,16 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    withCredentials: true,
-  });
-  
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
+
 api.interceptors.response.use(
   (res) => res,
   async (error) => {
     const originalRequest = error.config;
 
     const refreshToken = localStorage.getItem('refreshToken');
-
 
     // accessToken이 만료되었고 재시도하지 않은 요청이라면
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -22,11 +21,12 @@ api.interceptors.response.use(
         const refreshRes = await axios.post(
           `${import.meta.env.VITE_API_URL}/v1/auth/refresh`,
           { refresh: refreshToken },
-          { withCredentials: true,
+          {
+            withCredentials: true,
             headers: {
               'Content-Type': 'application/json',
             },
-           }
+          },
         );
 
         const newAccessToken = refreshRes.data.data.accessToken;
@@ -43,9 +43,8 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
-
 
 api.interceptors.request.use(
   (config) => {
@@ -58,7 +57,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default api;
