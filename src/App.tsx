@@ -13,6 +13,7 @@ import MyPage from './pages/MyPage.tsx';
 import RootLayout from './layout/root-layout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import OAuthCallback from './pages/OAuthCallback.tsx'; 
+import LPsPage from './pages/lps.tsx';
 
 const router = createBrowserRouter([
   {
@@ -26,11 +27,19 @@ const router = createBrowserRouter([
       },
       {
         path: 'log-in',
-        element: <LogIn />, // 인기 영화 목록
+        element: <LogIn />,
       },
       {
         path: 'sign-up',
-        element: <SignUp />, // 인기 영화 목록
+        element: <SignUp />,
+      },
+      {
+        path: 'lps',
+        element: <LPsPage />,
+      },
+      {
+        path: 'lp/:lpid',
+        // element: <LogIn />,
       },
       {
         path: "my",
@@ -41,7 +50,7 @@ const router = createBrowserRouter([
         )
       },
       {
-        path: 'v1/auth/google/callback',  // ✅ 이 경로 반드시 등록
+        path: 'v1/auth/google/callback',  
         element: <OAuthCallback />,
       },
     ],
