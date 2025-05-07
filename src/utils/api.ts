@@ -11,8 +11,6 @@ api.interceptors.response.use(
     const originalRequest = error.config;
 
     const refreshToken = localStorage.getItem('refreshToken');
-    console.log('📦 보내는 refresh body:', { refreshToken });
-
 
 
     // accessToken이 만료되었고 재시도하지 않은 요청이라면
@@ -23,8 +21,12 @@ api.interceptors.response.use(
         // Refresh Token으로 accessToken 재발급 요청
         const refreshRes = await axios.post(
           `${import.meta.env.VITE_API_URL}/v1/auth/refresh`,
-          { refreshToken },
-          { withCredentials: true }
+          { refresh: refreshToken },
+          { withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+           }
         );
 
         const newAccessToken = refreshRes.data.data.accessToken;
