@@ -12,6 +12,7 @@ const ProtectedRoute: React.FC<Props> = ({ children }) => {
 
   // 로그인 되지 않은 경우 로그인 창으로 리다이렉트
   if (!isLoggedIn) {
+    alert('로그인이 필요한 서비스입니다.');
     return <Navigate to="/log-in" replace />;
   }
 

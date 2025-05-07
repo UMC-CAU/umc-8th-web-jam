@@ -25,7 +25,7 @@ export default function LpDetailPage() {
     <div className="p-6 max-w-3xl mx-auto text-white">
       <div className="flex justify-between items-center mb-2 text-sm text-gray-300">
         <div>
-          {data.author.name} · {new Date(data.createdAt).toLocaleDateString()}
+          {data.author?.name} · {new Date(data.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
           <button className="text-sm text-gray-400 hover:text-white">✏️ 수정</button>
