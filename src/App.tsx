@@ -9,6 +9,7 @@ import SignUp from './pages/sign-up.tsx';
 import MyPage from './pages/MyPage.tsx';
 import RootLayout from './layout/root-layout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
+import OAuthCallback from './pages/OAuthCallback.tsx'; 
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
             <MyPage/>,
           </ProtectedRoute>
         )
+      },
+      {
+        path: 'v1/auth/google/callback',  // ✅ 이 경로 반드시 등록
+        element: <OAuthCallback />,
       },
     ],
   },
