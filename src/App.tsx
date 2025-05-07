@@ -13,7 +13,8 @@ import MyPage from './pages/MyPage.tsx';
 import RootLayout from './layout/root-layout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import OAuthCallback from './pages/OAuthCallback.tsx'; 
-import LPsPage from './pages/lps.tsx';
+import LPsPage from './pages/Lps.tsx';
+import LpDetailPage from './pages/LpDetailPage.tsx';
 
 const router = createBrowserRouter([
   {
@@ -39,7 +40,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'lp/:lpid',
-        // element: <LogIn />,
+        element: (
+          <ProtectedRoute>
+            <LpDetailPage/>,
+          </ProtectedRoute>
+        )
       },
       {
         path: "my",
