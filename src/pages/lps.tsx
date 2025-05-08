@@ -5,7 +5,6 @@ import api from '../utils/api';
 import { LPResponse } from '../types/lp';
 import SkeletonCard from '../components/SkeletonCard';
 
-
 export default function LPsPage() {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
@@ -27,18 +26,22 @@ export default function LPsPage() {
         <button
           onClick={() => setOrder('asc')}
           className={`px-3 py-1 text-sm rounded-md border transition
-            ${order === 'asc'
-              ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-              : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'}`}
+            ${
+              order === 'asc'
+                ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+                : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+            }`}
         >
           오래된순
         </button>
         <button
           onClick={() => setOrder('desc')}
           className={`px-3 py-1 text-sm rounded-md border transition
-            ${order === 'desc'
-              ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-              : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'}`}
+            ${
+              order === 'desc'
+                ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+                : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+            }`}
         >
           최신순
         </button>

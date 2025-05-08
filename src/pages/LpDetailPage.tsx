@@ -1,6 +1,7 @@
 // src/pages/LpDetailPage.tsx
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import { CommentListResponse } from '../types/comment';
@@ -8,6 +9,7 @@ import SkeletonComment from '../components/SkeletonComment';
 
 export default function LpDetailPage() {
   const { lpid } = useParams();
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['lp', lpid],
@@ -23,10 +25,10 @@ export default function LpDetailPage() {
     error: commentError,
     isLoading: commentLoading,
   } = useQuery({
-    queryKey: ['comments', lpid],
+    queryKey: ['comments', lpid, order],
     queryFn: async () => {
       const res = await api.get<{ data: CommentListResponse }>(
-        `/v1/lps/${lpid}/comments?cursor=0&limit=10&order=desc`
+        `/v1/lps/${lpid}/comments?cursor=0&limit=10&order=${order}`,
       );
       return res.data.data;
     },
@@ -99,36 +101,60 @@ export default function LpDetailPage() {
       </div>
 
       <section className="bg-[#1F2A36] p-4 rounded-lg">
-  <h2 className="text-lg font-semibold mb-3">댓글</h2>
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-semibold">💬 댓글</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setOrder('asc')}
+              className={`px-2 py-1 text-xs rounded border transition ${
+                order === 'asc'
+                  ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+                  : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+              }`}
+            >
+              오래된순
+            </button>
+            <button
+              onClick={() => setOrder('desc')}
+              className={`px-2 py-1 text-xs rounded border transition ${
+                order === 'desc'
+                  ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+                  : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+              }`}
+            >
+              최신순
+            </button>
+          </div>
+        </div>
 
-  {commentError ? (
-    <p className="text-red-500">댓글 로딩 실패</p>
-  ) : commentLoading ? (
-    <ul className="space-y-4 text-left">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <li key={i}>
-          <SkeletonComment />
-        </li>
-      ))}
-    </ul>
-  ) : commentData?.data.length === 0 ? (
-    <p className="text-gray-400">아직 댓글이 없습니다.</p>
-  ) : (
-    <ul className="space-y-4 text-left">
-      {commentData?.data.map((comment) => (
-        <li key={comment.id} className="flex gap-3 items-start">
-          <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
-            {comment.author.name[0]}
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-white">{comment.author.name}</p>
-            <p className="text-sm text-gray-300">{comment.content}</p>
-          </div>
-        </li>
-      ))}
-    </ul>
-  )}
-</section>
+        {commentError ? (
+          <p className="text-red-500">댓글 로딩 실패</p>
+        ) : commentLoading ? (
+          <ul className="space-y-4 text-left">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <li key={i}>
+                <SkeletonComment />
+              </li>
+            ))}
+          </ul>
+        ) : commentData?.data.length === 0 ? (
+          <p className="text-gray-400">아직 댓글이 없습니다.</p>
+        ) : (
+          <ul className="space-y-4 text-left">
+            {commentData?.data.map((comment) => (
+              <li key={comment.id} className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
+                  {comment.author.name[0]}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{comment.author.name}</p>
+                  <p className="text-sm text-gray-300">{comment.content}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
