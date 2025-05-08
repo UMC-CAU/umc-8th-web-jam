@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { LPResponse } from '../types/lp';
+import SkeletonCard from '../components/SkeletonCard';
+
 
 export default function LPsPage() {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
@@ -25,48 +27,51 @@ export default function LPsPage() {
         <button
           onClick={() => setOrder('asc')}
           className={`px-3 py-1 text-sm rounded-md border transition
-                ${
-                  order === 'asc'
-                    ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                    : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-                }`}
+            ${order === 'asc'
+              ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+              : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'}`}
         >
           오래된순
         </button>
-
         <button
           onClick={() => setOrder('desc')}
           className={`px-3 py-1 text-sm rounded-md border transition
-                ${
-                  order === 'desc'
-                    ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                    : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-                }`}
+            ${order === 'desc'
+              ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+              : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'}`}
         >
           최신순
         </button>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-        {data?.data?.map((lp) => (
-          <div
-            key={lp.id}
-            onClick={() => navigate(`/lp/${lp.id}`)}
-            className="relative group overflow-hidden rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
-          >
-            <img src={lp.thumbnail} alt={lp.title} className="w-full aspect-square object-cover" />
-            <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition duration-300 text-white flex flex-col justify-between">
-              <div className="flex-1 flex items-center justify-center px-2">
-                <h2 className="text-sm font-semibold text-center">{lp.title}</h2>
+        {isLoading
+          ? Array.from({ length: 10 }).map((_, idx) => <SkeletonCard key={idx} />)
+          : data?.data?.map((lp) => (
+              <div
+                key={lp.id}
+                onClick={() => navigate(`/lp/${lp.id}`)}
+                className="relative group overflow-hidden rounded-xl shadow-md hover:scale-105 transition-transform duration-300"
+              >
+                <img
+                  src={lp.thumbnail}
+                  alt={lp.title}
+                  className="w-full aspect-square object-cover"
+                />
+                <div className="absolute inset-0 bg-black bg-opacity-60 opacity-0 group-hover:opacity-100 transition duration-300 text-white flex flex-col justify-between">
+                  <div className="flex-1 flex items-center justify-center px-2">
+                    <h2 className="text-sm font-semibold text-center">{lp.title}</h2>
+                  </div>
+                  <div className="flex justify-between items-center text-xs px-3 py-2">
+                    <span>{new Date(lp.createdAt).toLocaleDateString()}</span>
+                    <span>♥︎ {lp.likes.length}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between items-center text-xs px-3 py-2">
-                <span>{new Date(lp.createdAt).toLocaleDateString()}</span>
-                <span>♥︎ {lp.likes.length}</span>
-              </div>
-            </div>
-          </div>
-        ))}
+            ))}
       </div>
+
+      {error && <p className="text-red-500 mt-4">에러 발생</p>}
     </div>
   );
 }
