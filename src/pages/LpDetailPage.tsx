@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import { CommentListResponse } from '../types/comment';
+import SkeletonComment from '../components/SkeletonComment';
 
 export default function LpDetailPage() {
   const { lpid } = useParams();
@@ -98,30 +99,36 @@ export default function LpDetailPage() {
       </div>
 
       <section className="bg-[#1F2A36] p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-3">💬 댓글</h2>
+  <h2 className="text-lg font-semibold mb-3">댓글</h2>
 
-        {commentError ? (
-          <p className="text-red-500">댓글 로딩 실패</p>
-        ) : commentLoading ? (
-          <p className="text-gray-400">불러오는 중...</p>
-        ) : commentData?.data.length === 0 ? (
-          <p className="text-gray-400">아직 댓글이 없습니다.</p>
-        ) : (
-          <ul className="space-y-4 text-left">
-            {commentData?.data.map((comment) => (
-              <li key={comment.id} className="flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
-                  {comment.author.name[0]}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{comment.author.name}</p>
-                  <p className="text-sm text-gray-300">{comment.content}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+  {commentError ? (
+    <p className="text-red-500">댓글 로딩 실패</p>
+  ) : commentLoading ? (
+    <ul className="space-y-4 text-left">
+      {Array.from({ length: 8 }).map((_, i) => (
+        <li key={i}>
+          <SkeletonComment />
+        </li>
+      ))}
+    </ul>
+  ) : commentData?.data.length === 0 ? (
+    <p className="text-gray-400">아직 댓글이 없습니다.</p>
+  ) : (
+    <ul className="space-y-4 text-left">
+      {commentData?.data.map((comment) => (
+        <li key={comment.id} className="flex gap-3 items-start">
+          <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
+            {comment.author.name[0]}
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">{comment.author.name}</p>
+            <p className="text-sm text-gray-300">{comment.content}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  )}
+</section>
     </div>
   );
 }
