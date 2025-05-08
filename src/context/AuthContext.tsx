@@ -32,7 +32,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isLoggedIn = !!currentUser && !!accessToken;
 
   return (
-    <AuthContext.Provider value={{ currentUser, accessToken, refreshToken, isLoggedIn, login, logout }}>
+    <AuthContext.Provider
+      value={{ currentUser, accessToken, refreshToken, isLoggedIn, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

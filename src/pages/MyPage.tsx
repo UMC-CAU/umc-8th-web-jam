@@ -36,10 +36,18 @@ const MyPage = () => {
 
       {userInfo ? (
         <div className="space-y-2 text-lg">
-          <p><strong>이름:</strong> {userInfo.name}</p>
-          <p><strong>이메일:</strong> {userInfo.email}</p>
-          <p><strong>소개:</strong> {userInfo.bio || '없음'}</p>
-          <p><strong>가입일:</strong> {new Date(userInfo.createdAt).toLocaleString()}</p>
+          <p>
+            <strong>이름:</strong> {userInfo.name}
+          </p>
+          <p>
+            <strong>이메일:</strong> {userInfo.email}
+          </p>
+          <p>
+            <strong>소개:</strong> {userInfo.bio || '없음'}
+          </p>
+          <p>
+            <strong>가입일:</strong> {new Date(userInfo.createdAt).toLocaleString()}
+          </p>
         </div>
       ) : (
         <p>불러오는 중...</p>
