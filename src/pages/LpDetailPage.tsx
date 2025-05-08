@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../utils/api';
 import { LP } from '../types/lp';
+import { CommentListResponse } from '../types/comment';
 
 export default function LpDetailPage() {
   const { lpid } = useParams();
@@ -16,7 +17,21 @@ export default function LpDetailPage() {
     enabled: !!lpid,
   });
 
-  console.log('LPid:', lpid);
+  const {
+    data: commentData,
+    error: commentError,
+    isLoading: commentLoading,
+  } = useQuery({
+    queryKey: ['comments', lpid],
+    queryFn: async () => {
+      const res = await api.get<{ data: CommentListResponse }>(
+        `/v1/lps/${lpid}/comments?cursor=0&limit=10&order=desc`
+      );
+      return res.data.data;
+    },
+    enabled: !!lpid,
+  });
+
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
   if (!data) return <div className="p-6">데이터 없음</div>;
@@ -41,37 +56,24 @@ export default function LpDetailPage() {
           animation: 'rotateDisk 10s linear infinite',
         }}
       >
-        {/* LP 판 (입체감 + 동심원 질감) */}
         <div
           className="w-full h-full rounded-full shadow-2xl relative"
           style={{
-            background: `
-        repeating-radial-gradient(circle at center, 
-          #111 0%, 
-          #111 4%, 
-          #1c1c1c 4%, 
-          #1c1c1c 8%
-        )`,
+            background: `repeating-radial-gradient(circle at center, #111 0%, #111 4%, #1c1c1c 4%, #1c1c1c 8%)`,
           }}
         ></div>
-
-        {/* 중앙 이미지 (조금 더 큼) */}
-        <div className="absolute top-1/2 left-1/2 w-36 h-36 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full  z-10">
+        <div className="absolute top-1/2 left-1/2 w-36 h-36 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full z-10">
           <img src={data.thumbnail} alt={data.title} className="w-full h-full object-cover" />
         </div>
-
-        {/* 중앙 구멍 */}
         <div className="absolute top-1/2 left-1/2 w-7 h-7 -translate-x-1/2 -translate-y-1/2 rounded-full z-20 border border-black bg-[#2C3E50] shadow-inner" />
       </div>
 
-      <style>
-        {`
-    @keyframes rotateDisk {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  `}
-      </style>
+      <style>{`
+        @keyframes rotateDisk {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
 
       <p className="text-white leading-relaxed mb-6 whitespace-pre-line text-center">
         {data.content}
@@ -88,12 +90,38 @@ export default function LpDetailPage() {
         ))}
       </div>
 
-      <div className="text-center text-sm text-gray-300">
+      <div className="text-center text-sm text-gray-300 mb-8">
         <button className="text-lg hover:scale-120 transition-transform focus:outline-none">
           ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음
       </div>
+
+      <section className="bg-[#1F2A36] p-4 rounded-lg">
+        <h2 className="text-lg font-semibold mb-3">💬 댓글</h2>
+
+        {commentError ? (
+          <p className="text-red-500">댓글 로딩 실패</p>
+        ) : commentLoading ? (
+          <p className="text-gray-400">불러오는 중...</p>
+        ) : commentData?.data.length === 0 ? (
+          <p className="text-gray-400">아직 댓글이 없습니다.</p>
+        ) : (
+          <ul className="space-y-4 text-left">
+            {commentData?.data.map((comment) => (
+              <li key={comment.id} className="flex gap-3 items-start">
+                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
+                  {comment.author.name[0]}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">{comment.author.name}</p>
+                  <p className="text-sm text-gray-300">{comment.content}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }
