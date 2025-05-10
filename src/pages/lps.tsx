@@ -18,41 +18,32 @@ const fetchLps = async ({
   return res.data.data;
 };
 
-
-
 export default function LPsPage() {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const navigate = useNavigate();
   const observerRef = useRef<HTMLDivElement | null>(null);
 
-  const {
-    data,
-    error,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<LPResponse, Error>({
-    queryKey: ['lps', order], // order는 useState 등으로 정의
-    queryFn: fetchLps,
-    getNextPageParam: (lastPage) =>
-      lastPage.hasNext ? lastPage.nextCursor : undefined,
-  });
+  const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteQuery<LPResponse, Error>({
+      queryKey: ['lps', order], // order는 useState 등으로 정의
+      queryFn: fetchLps,
+      getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
+    });
 
   useEffect(() => {
     if (!observerRef.current || !hasNextPage) return;
-  
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
-      { threshold: 1.0 }
+      { threshold: 1.0 },
     );
-  
+
     observer.observe(observerRef.current);
-  
+
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
@@ -84,10 +75,10 @@ export default function LPsPage() {
           최신순
         </button>
       </div>
-  
+
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
         {isLoading
-          ? Array.from({ length: 10 }).map((_, idx) => <SkeletonCard key={idx} />)
+          ? Array.from({ length: 15 }).map((_, idx) => <SkeletonCard key={`init-${idx}`} />)
           : data?.pages.flatMap((page) =>
               page.data.map((lp) => (
                 <div
@@ -110,15 +101,18 @@ export default function LPsPage() {
                     </div>
                   </div>
                 </div>
-              ))
+              )),
             )}
+
+        {/* 다음 페이지 로딩 중 Skeleton UI */}
+        {isFetchingNextPage &&
+          Array.from({ length: 10 }).map((_, idx) => <SkeletonCard key={`more-${idx}`} />)}
       </div>
-  
+
       {error && <p className="text-red-500 mt-4">에러 발생</p>}
-  
+
       {/* 관찰자용 div */}
       <div ref={observerRef} style={{ height: 20 }} />
-
     </div>
   );
 }
