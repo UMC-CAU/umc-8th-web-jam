@@ -1,15 +1,28 @@
 // src/pages/LpDetailPage.tsx
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
+import { useState, useRef, useEffect } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import { CommentListResponse } from '../types/comment';
 import SkeletonComment from '../components/SkeletonComment';
 
+const fetchComments = async ({
+  pageParam = 0,
+  queryKey,
+}: {
+  pageParam?: number;
+  queryKey: [string, string, string]; // ['comments', lpid, order]
+}): Promise<CommentListResponse> => {
+  const [, lpid, order] = queryKey;
+  const res = await api.get(`/v1/lps/${lpid}/comments?cursor=${pageParam}&limit=10&order=${order}`);
+  return res.data.data;
+};
+
 export default function LpDetailPage() {
   const { lpid } = useParams();
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
+  const observerRef = useRef<HTMLDivElement | null>(null);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['lp', lpid],
@@ -21,19 +34,35 @@ export default function LpDetailPage() {
   });
 
   const {
-    data: commentData,
+    data: commentPages,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isCommentsLoading,
     error: commentError,
-    isLoading: commentLoading,
-  } = useQuery({
-    queryKey: ['comments', lpid, order],
-    queryFn: async () => {
-      const res = await api.get<{ data: CommentListResponse }>(
-        `/v1/lps/${lpid}/comments?cursor=0&limit=10&order=${order}`,
-      );
-      return res.data.data;
-    },
+  } = useInfiniteQuery<CommentListResponse, Error>({
+    queryKey: ['comments', lpid!, order],
+    queryFn: fetchComments,
+    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     enabled: !!lpid,
   });
+
+  useEffect(() => {
+    if (!observerRef.current || !hasNextPage) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 1.0 },
+    );
+
+    observer.observe(observerRef.current);
+
+    return () => observer.disconnect();
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -129,7 +158,7 @@ export default function LpDetailPage() {
 
         {commentError ? (
           <p className="text-red-500">댓글 로딩 실패</p>
-        ) : commentLoading ? (
+        ) : isCommentsLoading ? (
           <ul className="space-y-4 text-left">
             {Array.from({ length: 8 }).map((_, i) => (
               <li key={i}>
@@ -137,21 +166,33 @@ export default function LpDetailPage() {
               </li>
             ))}
           </ul>
-        ) : commentData?.data.length === 0 ? (
+        ) : commentPages?.pages.flatMap((page) => page.data).length === 0 ? (
           <p className="text-gray-400">아직 댓글이 없습니다.</p>
         ) : (
           <ul className="space-y-4 text-left">
-            {commentData?.data.map((comment) => (
-              <li key={comment.id} className="flex gap-3 items-start">
-                <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
-                  {comment.author.name[0]}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{comment.author.name}</p>
-                  <p className="text-sm text-gray-300">{comment.content}</p>
-                </div>
-              </li>
-            ))}
+            {commentPages?.pages.flatMap((page) =>
+              page.data.map((comment) => (
+                <li key={comment.id} className="flex gap-3 items-start">
+                  <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
+                    {comment.author.name[0]}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-white">{comment.author.name}</p>
+                    <p className="text-sm text-gray-300">{comment.content}</p>
+                  </div>
+                </li>
+              )),
+            )}
+
+            {/* 다음 페이지 로딩 중 스켈레톤 */}
+            {isFetchingNextPage &&
+              Array.from({ length: 5 }).map((_, i) => (
+                <li key={`loading-${i}`}>
+                  <SkeletonComment />
+                </li>
+              ))}
+
+            <div ref={observerRef} />
           </ul>
         )}
       </section>
