@@ -1,12 +1,10 @@
 // src/pages/LpDetailPage.tsx
 import { useParams } from 'react-router-dom';
-import { useQuery  } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import CommentSection from '../components/CommentSection';
-
-
 
 export default function LpDetailPage() {
   const { lpid } = useParams();
@@ -20,7 +18,6 @@ export default function LpDetailPage() {
     },
     enabled: !!lpid,
   });
-
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
