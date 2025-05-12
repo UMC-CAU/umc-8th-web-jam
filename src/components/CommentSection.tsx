@@ -1,5 +1,5 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useEffect, useRef } from 'react';
+import { useInfiniteQuery, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
 import { CommentListResponse } from '../types/comment';
 import SkeletonComment from './SkeletonComment';
 import api from '../utils/api';
@@ -34,8 +34,9 @@ const useCurrentUser = () => {
 
 export default function CommentSection({ lpid, order, setOrder }: CommentSectionProps) {
   const observerRef = useRef<HTMLDivElement | null>(null);
-
+  const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
+  const [content, setContent] = useState('');
 
   const {
     data: commentPages,
@@ -68,6 +69,20 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
     return () => observer.disconnect();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const createComment = useMutation({
+    mutationFn: async () => {
+      const res = await api.post(`/v1/lps/${lpid}/comments`, { content });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', lpid] });
+      setContent('');
+    },
+    onError: (error) => {
+      console.error('댓글 추가 실패', error);
+    },
+  });
+
   return (
     <section className="bg-[#1F2A36] p-4 rounded-lg">
       <div className="flex justify-between items-center mb-3">
@@ -95,6 +110,41 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
           </button>
         </div>
       </div>
+      <div className="flex items-center gap-3 mb-4">
+        {currentUser?.avatar ? (
+          <img
+            src={currentUser.avatar}
+            alt={currentUser.name}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
+            {currentUser?.name?.[0] ?? '나'}
+          </div>
+        )}
+
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <textarea
+              className="flex-1 bg-[#2b3a4c] rounded px-3 py-2 text-sm text-white resize-none h-10"
+              placeholder="댓글을 입력해주세요"
+              rows={1}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+            />
+
+            <button
+              className="h-10 px-4 text-sm bg-[#FFF8DC] text-[#5B3A00] rounded hover:brightness-95 disabled:opacity-50"
+              disabled={!content.trim() || createComment.isPending}
+              onClick={() => {
+                createComment.mutate();
+              }}
+            >
+              작성
+            </button>
+          </div>
+        </div>
+      </div>
 
       {error ? (
         <p className="text-red-500">댓글 로딩 실패</p>
@@ -110,33 +160,6 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
         <p className="text-gray-400">아직 댓글이 없습니다.</p>
       ) : (
         <ul className="space-y-4 text-left">
-          <li className="flex items-center gap-3">
-            {currentUser?.avatar ? (
-              <img
-                src={currentUser.avatar}
-                alt={currentUser.name}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
-                {currentUser?.name?.[0] ?? '나'}
-              </div>
-            )}
-
-            <div className="flex-1">
-              <div className="flex items-center gap-2">
-                <textarea
-                  className="flex-1 bg-[#2b3a4c] rounded px-3 py-2 text-sm text-white resize-none h-10"
-                  placeholder="댓글을 입력해주세요"
-                  rows={1}
-                />
-                <button className="h-10 px-4 text-sm bg-[#FFF8DC] text-[#5B3A00] rounded hover:brightness-95">
-                  작성
-                </button>
-              </div>
-            </div>
-          </li>
-
           {commentPages?.pages.flatMap((page) =>
             page.data.map((comment) => (
               <li key={comment.id} className="flex gap-3 items-start">
