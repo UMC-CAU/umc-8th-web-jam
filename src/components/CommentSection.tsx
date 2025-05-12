@@ -162,7 +162,7 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
         <ul className="space-y-4 text-left">
           {commentPages?.pages.flatMap((page) =>
             page.data.map((comment) => (
-              <li key={comment.id} className="flex gap-3 items-start">
+              <li key={comment.id} className="relative flex gap-3 items-start group">
                 <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
                   {comment.author.name[0]}
                 </div>
@@ -170,6 +170,28 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
                   <p className="text-sm font-semibold text-white">{comment.author.name}</p>
                   <p className="text-sm text-gray-300">{comment.content}</p>
                 </div>
+                {comment.author.id === currentUser?.id && (
+                  <div className="absolute top-1 right-0 hidden group-hover:flex gap-1">
+                    <button
+                      className="text-white text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600"
+                      onClick={() => {
+                        // 수정 로직 연결
+                        console.log('수정 클릭:', comment.id);
+                      }}
+                    >
+                      ✏️ 수정
+                    </button>
+                    <button
+                      className="text-red-400 text-xs bg-gray-700 px-2 py-1 rounded hover:bg-red-600"
+                      onClick={() => {
+                        // 삭제 로직 연결
+                        console.log('삭제 클릭:', comment.id);
+                      }}
+                    >
+                      🗑 삭제
+                    </button>
+                  </div>
+                )}
               </li>
             )),
           )}
