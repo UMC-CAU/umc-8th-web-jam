@@ -58,7 +58,6 @@ const Login = () => {
     loginMutation.mutate(data);
   };
 
-
   const handleGoogleLogin = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google/login`;
   };

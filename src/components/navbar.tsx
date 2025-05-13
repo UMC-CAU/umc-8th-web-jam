@@ -1,5 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // 로그인 상태 확인용
+import { useMutation } from '@tanstack/react-query';
+import api from '../utils/api';
 
 interface NavbarProps {
   toggleSidebar: () => void;
@@ -9,10 +11,16 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
   const { isLoggedIn, logout, currentUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
+  const logoutMutation = useMutation({
+    mutationFn: async () => {
+      await api.post('/v1/auth/signout');
+    },
+    onSuccess: () => {
+      logout(); // localStorage 정리 (AuthContext)
+      navigate('/'); // 홈으로 이동
+      alert('로그아웃되었습니다.');
+    },
+  });
 
   return (
     <nav className="flex justify-between items-center px-4 py-3 bg-[#FDF6EC] text-[#5B3A00] rounded-b-xl shadow-sm">
@@ -33,7 +41,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
               </button>
             </NavLink>
             <button
-              onClick={handleLogout}
+              onClick={() => logoutMutation.mutate()}
               className="px-3 py-1 text-sm font-medium text-white bg-[#2C3E50] rounded hover:bg-[#1B2631] transition"
             >
               로그아웃
