@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useMutation } from '@tanstack/react-query';
 // import { useLocalStorage, User } from '../hooks/useLocalStorage';
 import { logInSchema } from '../validations/validationSchema';
 import { useAuth } from '../context/AuthContext';
@@ -13,7 +14,6 @@ type LogInFormData = z.infer<typeof logInSchema>;
 const Login = () => {
   const navigate = useNavigate(); // 이전 페이지로 이동하기 위한 Hook
   const [showPassword, setShowPassword] = useState(false);
-  // const [userList] = useLocalStorage<User[]>('users', []);
   const { login } = useAuth();
 
   // useForm 훅과 zodResolver 연결
@@ -31,30 +31,33 @@ const Login = () => {
     },
   });
 
-  const handleLogin = async (data: LogInFormData) => {
-    try {
-      const response = await api.post('/v1/auth/signin', data, {});
-
-      const result = response.data;
-
+  const loginMutation = useMutation({
+    mutationFn: async (data: LogInFormData) => {
+      const res = await api.post('/v1/auth/signin', data);
+      return res.data;
+    },
+    onSuccess: (result) => {
       const user = {
         id: result.data.id,
         nickname: result.data.name,
-        email: data.email,
+        email: result.data.email,
       };
-
       const accessToken = result.data.accessToken;
       const refreshToken = result.data.refreshToken;
 
       login(user, accessToken, refreshToken);
-
       alert(`${user.nickname}님, 환영합니다!`);
       navigate('/');
-    } catch (error) {
+    },
+    onError: () => {
       alert('이메일 또는 비밀번호가 일치하지 않습니다.');
-      console.log(error);
-    }
+    },
+  });
+
+  const handleLogin = (data: LogInFormData) => {
+    loginMutation.mutate(data);
   };
+
 
   const handleGoogleLogin = () => {
     window.location.href = `${import.meta.env.VITE_API_URL}/v1/auth/google/login`;
