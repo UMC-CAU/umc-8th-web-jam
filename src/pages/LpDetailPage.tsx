@@ -44,14 +44,36 @@ export default function LpDetailPage() {
       const res = await api.post(`/v1/lps/${lpid}/likes`);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['likes', lpid] });
-      // 좋아요 개수 다시 렌더링
+    // onMutate: UI를 먼 업데이트하고, 이전 상태 저장
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ['lp', lpid] }); // 해당 쿼리의 refetch를 중단시킴 (중간에 불필요한 업데이트 방지)
+      const previous = queryClient.getQueryData(['lp', lpid]); // 현재 캐시 상태를 백업해둠 (실패 시 롤백용)
+      // 캐시를 즉시 업데이트하여 좋아요가 반영된 것처럼 UI에 표시
+      // old는 현재 캐시에 들어 있는 LP 데이터 (LP 객체)
+      queryClient.setQueryData(['lp', lpid], (old: LP) => {
+        if (!old) return old;
+        return {
+          ...old,
+          likes: [...old.likes, { id: Date.now(), userId: 'temp', lpId: lpid }], // 일단 임시로 좋아요를 하나 만들어서 넣었다가 onSettled에서 실제와 동기화 (보여주기용)
+        };
+      });
+
+      return { previous }; // 롤백용 데이터 전달, onError나 onSettled의 context로 넘어감
     },
-    onError: (error) => {
+    // 서버 요청 실패 시, 이전 상태로 롤백
+    onError: (error, _, context) => {
+      // mutationFn에 전달된 인자가 없어서 variables는 안 씀
+      if (context?.previous) {
+        // onError가 호출된 상태에서, onMutate에서 previous를 return한 경우
+        queryClient.setQueryData(['lp', lpid], context.previous); // 기존 상태로 다시
+      }
       console.log(error);
-    }
-  })
+    },
+    // 성공 여부와 무관하게 항상 서버 데이터 다시 가져옴 (동기화)
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['lp', lpid] }); // 서버 데이터로 최신화
+    },
+  });
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -122,8 +144,10 @@ export default function LpDetailPage() {
       </div>
 
       <div className="text-center text-sm text-gray-300 mb-8">
-        <button className="text-lg hover:scale-120 transition-transform focus:outline-none"
-        onClick={() => likeLP.mutate()}>
+        <button
+          className="text-lg hover:scale-120 transition-transform focus:outline-none"
+          onClick={() => likeLP.mutate()}
+        >
           ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음

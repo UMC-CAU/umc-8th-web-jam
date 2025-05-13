@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 
 const MyPage = () => {
@@ -20,6 +21,7 @@ const MyPage = () => {
   const [editAvatar, setEditAvatar] = useState('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const queryClient = useQueryClient();
+  const { currentUser, updateNickname } = useAuth();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -63,16 +65,32 @@ const MyPage = () => {
       const res = await api.patch(`/v1/users`, { name, bio, avatar });
       return res.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      setUserInfo(data.data);
-      setIsEditing(false);
-      setEditName('');
-      setEditBio('');
-      setEditAvatar('');
+
+    onMutate: async (updatedData) => {
+      const previousName = currentUser?.nickname;
+      updateNickname(updatedData.name); // 마이페이지/네비바에 바로 반영
+      return { previousName };
     },
-    onError: (error) => {
+
+    // 실패 시 롤백
+    onError: (error, _, context) => {
+      if (context?.previousName) {
+        updateNickname(context.previousName);
+      }
       console.error('프로필 수정 실패', error);
+    },
+
+    // 성공/실패 관계없이 실행: invalidate + UI 상태 정리
+    onSettled: (data, error) => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+
+      if (!error && data) {
+        setUserInfo(data.data); // 마이페이지 업데이트
+        setIsEditing(false);
+        setEditName('');
+        setEditBio('');
+        setEditAvatar('');
+      }
     },
   });
 
