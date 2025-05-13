@@ -8,6 +8,7 @@ interface AuthContextType {
   isLoggedIn: boolean; // 로그인 여부
   login: (user: User, at: string, rt: string) => void; // 로그인
   logout: () => void; // 로그아웃
+  updateNickname: (newNickname: string) => void; // 닉네임 변경
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,11 +30,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRefreshToken('');
   };
 
+  const updateNickname = (newNickname: string) => {
+    if (currentUser) {
+      setCurrentUser({ ...currentUser, nickname: newNickname });
+    }
+  };
+
   const isLoggedIn = !!currentUser && !!accessToken;
 
   return (
     <AuthContext.Provider
-      value={{ currentUser, accessToken, refreshToken, isLoggedIn, login, logout }}
+      value={{ currentUser, accessToken, refreshToken, isLoggedIn, login, logout, updateNickname }}
     >
       {children}
     </AuthContext.Provider>
