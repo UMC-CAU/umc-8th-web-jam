@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { LPResponse } from '../types/lp';
 import SkeletonCard from '../components/SkeletonCard';
+import LpAddModal from '../components/LpAddModal';
 
 const fetchLps = async ({
   pageParam = 0,
@@ -20,6 +21,7 @@ const fetchLps = async ({
 
 export default function LPsPage() {
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const observerRef = useRef<HTMLDivElement | null>(null);
 
@@ -51,6 +53,16 @@ export default function LPsPage() {
 
   return (
     <div className="p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold">LP 목록</h1>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 text-sm rounded-md bg-black text-white"
+        >
+          + LP 등록
+        </button>
+      </div>
+
       <div className="flex justify-end mb-4 gap-2">
         <button
           onClick={() => setOrder('asc')}
@@ -113,6 +125,8 @@ export default function LPsPage() {
 
       {/* 관찰자용 div */}
       <div ref={observerRef} style={{ height: 20 }} />
+
+      {isModalOpen && <LpAddModal onClose={() => setIsModalOpen(false)} />}
     </div>
   );
 }

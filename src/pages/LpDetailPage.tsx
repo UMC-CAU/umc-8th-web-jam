@@ -1,28 +1,18 @@
 // src/pages/LpDetailPage.tsx
-import { useParams } from 'react-router-dom';
-import { useQuery, useInfiniteQuery } from '@tanstack/react-query';
-import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
-import { CommentListResponse } from '../types/comment';
-import SkeletonComment from '../components/SkeletonComment';
-
-const fetchComments = async ({
-  pageParam = 0,
-  queryKey,
-}: {
-  pageParam?: number;
-  queryKey: [string, string, string]; // ['comments', lpid, order]
-}): Promise<CommentListResponse> => {
-  const [, lpid, order] = queryKey;
-  const res = await api.get(`/v1/lps/${lpid}/comments?cursor=${pageParam}&limit=10&order=${order}`);
-  return res.data.data;
-};
+import CommentSection from '../components/CommentSection';
+import LpUpdateModal from '../components/LpUpdateModal';
 
 export default function LpDetailPage() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { lpid } = useParams();
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
-  const observerRef = useRef<HTMLDivElement | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['lp', lpid],
@@ -33,36 +23,35 @@ export default function LpDetailPage() {
     enabled: !!lpid,
   });
 
-  const {
-    data: commentPages,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading: isCommentsLoading,
-    error: commentError,
-  } = useInfiniteQuery<CommentListResponse, Error>({
-    queryKey: ['comments', lpid!, order],
-    queryFn: fetchComments,
-    getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
-    enabled: !!lpid,
+  const deleteLp = useMutation({
+    mutationFn: async () => {
+      console.log(`${lpid} 삭제 호출`);
+      const res = await api.delete(`/v1/lps/${lpid}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lps', lpid] });
+      alert('LP 삭제 완료');
+      navigate('/lps');
+    },
+    onError: (error) => {
+      console.error('LP 삭제 실패', error);
+    },
   });
 
-  useEffect(() => {
-    if (!observerRef.current || !hasNextPage) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1.0 },
-    );
-
-    observer.observe(observerRef.current);
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  const likeLP = useMutation({
+    mutationFn: async () => {
+      const res = await api.post(`/v1/lps/${lpid}/likes`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['likes', lpid] });
+      // 좋아요 개수 다시 렌더링
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  })
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -75,8 +64,18 @@ export default function LpDetailPage() {
           {data.author?.name} · {new Date(data.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
-          <button className="text-sm text-gray-400 hover:text-white">✏️ 수정</button>
-          <button className="text-sm text-gray-400 hover:text-red-400">🗑 삭제</button>
+          <button
+            className="text-sm text-gray-400 hover:text-white"
+            onClick={() => setShowEditModal(true)}
+          >
+            ✏️ 수정
+          </button>
+          <button
+            className="text-sm text-gray-400 hover:text-red-400"
+            onClick={() => deleteLp.mutate()}
+          >
+            🗑 삭제
+          </button>
         </div>
       </div>
 
@@ -123,79 +122,15 @@ export default function LpDetailPage() {
       </div>
 
       <div className="text-center text-sm text-gray-300 mb-8">
-        <button className="text-lg hover:scale-120 transition-transform focus:outline-none">
+        <button className="text-lg hover:scale-120 transition-transform focus:outline-none"
+        onClick={() => likeLP.mutate()}>
           ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음
       </div>
 
-      <section className="bg-[#1F2A36] p-4 rounded-lg">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="text-lg font-semibold">💬 댓글</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setOrder('asc')}
-              className={`px-2 py-1 text-xs rounded border transition ${
-                order === 'asc'
-                  ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                  : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-              }`}
-            >
-              오래된순
-            </button>
-            <button
-              onClick={() => setOrder('desc')}
-              className={`px-2 py-1 text-xs rounded border transition ${
-                order === 'desc'
-                  ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                  : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-              }`}
-            >
-              최신순
-            </button>
-          </div>
-        </div>
-
-        {commentError ? (
-          <p className="text-red-500">댓글 로딩 실패</p>
-        ) : isCommentsLoading ? (
-          <ul className="space-y-4 text-left">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <li key={i}>
-                <SkeletonComment />
-              </li>
-            ))}
-          </ul>
-        ) : commentPages?.pages.flatMap((page) => page.data).length === 0 ? (
-          <p className="text-gray-400">아직 댓글이 없습니다.</p>
-        ) : (
-          <ul className="space-y-4 text-left">
-            {commentPages?.pages.flatMap((page) =>
-              page.data.map((comment) => (
-                <li key={comment.id} className="flex gap-3 items-start">
-                  <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
-                    {comment.author.name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white">{comment.author.name}</p>
-                    <p className="text-sm text-gray-300">{comment.content}</p>
-                  </div>
-                </li>
-              )),
-            )}
-
-            {/* 다음 페이지 로딩 중 스켈레톤 */}
-            {isFetchingNextPage &&
-              Array.from({ length: 5 }).map((_, i) => (
-                <li key={`loading-${i}`}>
-                  <SkeletonComment />
-                </li>
-              ))}
-
-            <div ref={observerRef} />
-          </ul>
-        )}
-      </section>
+      <CommentSection lpid={lpid!} order={order} setOrder={setOrder} />
+      {showEditModal && <LpUpdateModal lp={data} onClose={() => setShowEditModal(false)} />}
     </div>
   );
 }
