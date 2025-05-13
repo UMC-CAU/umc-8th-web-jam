@@ -39,6 +39,20 @@ export default function LpDetailPage() {
     },
   });
 
+  const likeLP = useMutation({
+    mutationFn: async () => {
+      const res = await api.post(`/v1/lps/${lpid}/likes`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['likes', lpid] });
+      // 좋아요 개수 다시 렌더링
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  })
+
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
   if (!data) return <div className="p-6">데이터 없음</div>;
@@ -108,7 +122,8 @@ export default function LpDetailPage() {
       </div>
 
       <div className="text-center text-sm text-gray-300 mb-8">
-        <button className="text-lg hover:scale-120 transition-transform focus:outline-none">
+        <button className="text-lg hover:scale-120 transition-transform focus:outline-none"
+        onClick={() => likeLP.mutate()}>
           ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음
