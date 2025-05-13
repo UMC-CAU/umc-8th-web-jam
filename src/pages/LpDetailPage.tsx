@@ -1,12 +1,14 @@
 // src/pages/LpDetailPage.tsx
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useInfiniteQuery, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import CommentSection from '../components/CommentSection';
 
 export default function LpDetailPage() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { lpid } = useParams();
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
@@ -18,6 +20,23 @@ export default function LpDetailPage() {
     },
     enabled: !!lpid,
   });
+
+  const deleteLp = useMutation({
+    mutationFn: async () => {
+      console.log(`${lpid} 삭제 호출`);
+      const res = await api.delete(`/v1/lps/${lpid}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lps', lpid] });
+      alert('LP 삭제 완료');
+      navigate('/lps');
+    },
+    onError: (error) => {
+      console.error('LP 삭제 실패', error);
+    },
+  })
+
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -31,7 +50,9 @@ export default function LpDetailPage() {
         </div>
         <div className="flex gap-2">
           <button className="text-sm text-gray-400 hover:text-white">✏️ 수정</button>
-          <button className="text-sm text-gray-400 hover:text-red-400">🗑 삭제</button>
+          <button className="text-sm text-gray-400 hover:text-red-400"
+            onClick={() => deleteLp.mutate()}
+          >🗑 삭제</button>
         </div>
       </div>
 
