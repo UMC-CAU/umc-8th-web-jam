@@ -37,6 +37,8 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
   const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
   const [content, setContent] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null); // 수정 중인 댓글 Id
+  const [editingContent, setEditingContent] = useState(''); // 수정 중인 내용
 
   const {
     data: commentPages,
@@ -80,6 +82,35 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
     },
     onError: (error) => {
       console.error('댓글 추가 실패', error);
+    },
+  });
+
+  const deleteComment = useMutation({
+    mutationFn: async (commentId) => {
+      console.log(`${commentId} 삭제 호출`);
+      const res = await api.delete(`/v1/lps/${lpid}/comments/${commentId}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', lpid] }); //???
+    },
+    onError: (error) => {
+      console.error('댓글 삭제 실패', error);
+    },
+  });
+
+  const updateComment = useMutation({
+    mutationFn: async ({ commentId, content }: { commentId: number; content: string }) => {
+      const res = await api.patch(`/v1/lps/${lpid}/comments/${commentId}`, { content });
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', lpid] });
+      setEditingCommentId(null);
+      setEditingContent('');
+    },
+    onError: (error) => {
+      console.error('댓글 수정 실패', error);
     },
   });
 
@@ -134,7 +165,7 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
             />
 
             <button
-              className="h-10 px-4 text-sm bg-[#FFF8DC] text-[#5B3A00] rounded hover:brightness-95 disabled:opacity-50"
+              className="h-10 px-4 text-sm bg-[#FFF8DC] text-[#5B3A00] rounded hover:brightness-90 disabled:opacity-50"
               disabled={!content.trim() || createComment.isPending}
               onClick={() => {
                 createComment.mutate();
@@ -166,26 +197,58 @@ export default function CommentSection({ lpid, order, setOrder }: CommentSection
                 <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-sm font-bold text-white">
                   {comment.author.name[0]}
                 </div>
-                <div>
-                  <p className="text-sm font-semibold text-white">{comment.author.name}</p>
-                  <p className="text-sm text-gray-300">{comment.content}</p>
+
+                <div className="flex-1">
+                  {editingCommentId === comment.id ? (
+                    <div>
+                      <textarea
+                        className="w-full text-sm p-2 rounded bg-[#2b3a4c] text-white"
+                        value={editingContent}
+                        onChange={(e) => setEditingContent(e.target.value)}
+                      />
+                      <div className="mt-1 flex gap-2">
+                        <button
+                          className="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-green-300"
+                          onClick={() =>
+                            updateComment.mutate({
+                              commentId: comment.id,
+                              content: editingContent,
+                            })
+                          }
+                        >
+                          저장
+                        </button>
+                        <button
+                          className="text-xs px-2 py-1 bg-gray-500 text-white rounded hover:bg-red-300"
+                          onClick={() => setEditingCommentId(null)}
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm font-semibold text-white">{comment.author.name}</p>
+                      <p className="text-sm text-gray-300">{comment.content}</p>
+                    </>
+                  )}
                 </div>
-                {comment.author.id === currentUser?.id && (
+
+                {comment.author.id === currentUser?.id && editingCommentId !== comment.id && (
                   <div className="absolute top-1 right-0 hidden group-hover:flex gap-1">
                     <button
-                      className="text-white text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-600"
+                      className="text-white text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-500"
                       onClick={() => {
-                        // 수정 로직 연결
-                        console.log('수정 클릭:', comment.id);
+                        setEditingCommentId(comment.id);
+                        setEditingContent(comment.content);
                       }}
                     >
                       ✏️ 수정
                     </button>
                     <button
-                      className="text-red-400 text-xs bg-gray-700 px-2 py-1 rounded hover:bg-red-600"
+                      className="text-red-400 text-xs bg-gray-700 px-2 py-1 rounded hover:bg-gray-500"
                       onClick={() => {
-                        // 삭제 로직 연결
-                        console.log('삭제 클릭:', comment.id);
+                        deleteComment.mutate(comment.id);
                       }}
                     >
                       🗑 삭제
