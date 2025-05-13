@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useLocalStorage, User } from '../hooks/useLocalStorage';
+import { useMutation } from '@tanstack/react-query';
 import { signUpSchema } from '../validations/validationSchema';
+import api from '../utils/api';
 
 // 유효성 검사 스키마 - 따로 파일로 관리하는 것이 좋을까?
 
@@ -15,7 +16,6 @@ const SignUp = () => {
   const [step, setStep] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [userList, setUserList] = useLocalStorage<User[]>('users', []);
 
   //useForm 훅과 zodResolver 연결
   const {
@@ -59,20 +59,29 @@ const SignUp = () => {
     if (isValid) setStep((prev) => prev + 1);
   };
 
+  const signUpMutation = useMutation({
+    mutationFn: async (data: SignUpFormData) => {
+      const body = {
+        name: data.nickname,
+        email: data.email,
+        password: data.password,
+        bio: '', // 선택사항, 일단 빈 문자열
+        avatar: '', // 선택사항, 일단 빈 문자열
+      };
+      const res = await api.post('/v1/auth/signup', body);
+      return res.data;
+    },
+    onSuccess: () => {
+      alert('회원가입이 완료되었습니다!');
+      navigate('/log-in');
+    },
+    onError: () => {
+      alert('회원가입에 실패했습니다.');
+    },
+  });
+
   const handleSignUp = (data: SignUpFormData) => {
-    const isDuplicate = userList.some((user) => user.email === data.email);
-    if (isDuplicate) {
-      alert('이미 존재하는 이메일입니다.');
-      return;
-    }
-    const newUser: User = {
-      email: data.email,
-      password: data.password,
-      nickname: data.nickname,
-    };
-    setUserList([...userList, newUser]);
-    alert('회원가입이 완료되었습니다!');
-    navigate('/log-in');
+    signUpMutation.mutate(data);
   };
 
   return (

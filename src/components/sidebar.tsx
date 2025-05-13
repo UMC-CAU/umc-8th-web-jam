@@ -9,31 +9,31 @@ export default function Sidebar() {
   const [showModal, setShowModal] = useState(false);
 
   const { logout } = useAuth(); // 유저 정보 초기화용
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const deleteUser = useMutation({
-  mutationFn: async () => {
-    const res = await api.delete('/v1/users');
-    return res.data;
-  },
-  onSuccess: () => {
-    alert('탈퇴가 완료되었습니다.');
-    logout();        // 로컬 유저 정보 제거
-    navigate('/');   // 홈으로 이동
-  },
-  onError: (error) => {
-    console.error('탈퇴 처리 실패', error);
-  },
-});
+  const deleteUser = useMutation({
+    mutationFn: async () => {
+      const res = await api.delete('/v1/users');
+      return res.data;
+    },
+    onSuccess: () => {
+      alert('탈퇴가 완료되었습니다.');
+      logout(); // 로컬 유저 정보 제거
+      navigate('/'); // 홈으로 이동
+    },
+    onError: (error) => {
+      console.error('탈퇴 처리 실패', error);
+    },
+  });
 
   const handleConfirmDelete = () => {
     setShowModal(false);
-    deleteUser.mutate(); 
+    deleteUser.mutate();
   };
 
   return (
     <>
-      <aside className="w-48 h-screen bg-[#1B2631] text-white py-6 px-4 flex flex-col justify-between rounded-xl shadow-md">
+      <aside className="w-48 h-[80vh] bg-[#1B2631] text-white py-6 px-4 flex flex-col justify-between rounded-xl shadow-md">
         <div className="space-y-6 text-left">
           <Link to="/search" className="block text-sm hover:text-[#FFE8A3] transition">
             🔍 찾기
@@ -55,10 +55,7 @@ const deleteUser = useMutation({
       </aside>
 
       {showModal && (
-        <WithdrawlModal
-          onConfirm={handleConfirmDelete}
-          onCancel={() => setShowModal(false)}
-        />
+        <WithdrawlModal onConfirm={handleConfirmDelete} onCancel={() => setShowModal(false)} />
       )}
     </>
   );
