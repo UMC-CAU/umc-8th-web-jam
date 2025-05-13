@@ -47,10 +47,9 @@ export default function LpAddModal({ onClose }: LPAddModalProps) {
         title,
         content,
         thumbnail,
-        tags: tags.length > 0 ? tags.map(t => t.name) : ['default'],
+        tags: tags.length > 0 ? tags.map((t) => t.name) : ['default'],
         published: true,
       };
-      console.log('🔥 보내는 데이터:', body);
       const res = await api.post(`/v1/lps`, body);
       return res.data;
     },
