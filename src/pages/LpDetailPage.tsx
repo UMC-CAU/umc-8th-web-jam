@@ -1,16 +1,18 @@
 // src/pages/LpDetailPage.tsx
 import { useNavigate, useParams } from 'react-router-dom';
-import { useInfiniteQuery, useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { useState, useEffect, useRef } from 'react';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
+import { useState } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import CommentSection from '../components/CommentSection';
+import LpUpdateModal from '../components/LpUpdateModal';
 
 export default function LpDetailPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { lpid } = useParams();
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['lp', lpid],
@@ -35,8 +37,7 @@ export default function LpDetailPage() {
     onError: (error) => {
       console.error('LP 삭제 실패', error);
     },
-  })
-
+  });
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -49,10 +50,18 @@ export default function LpDetailPage() {
           {data.author?.name} · {new Date(data.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
-          <button className="text-sm text-gray-400 hover:text-white">✏️ 수정</button>
-          <button className="text-sm text-gray-400 hover:text-red-400"
+          <button
+            className="text-sm text-gray-400 hover:text-white"
+            onClick={() => setShowEditModal(true)}
+          >
+            ✏️ 수정
+          </button>
+          <button
+            className="text-sm text-gray-400 hover:text-red-400"
             onClick={() => deleteLp.mutate()}
-          >🗑 삭제</button>
+          >
+            🗑 삭제
+          </button>
         </div>
       </div>
 
@@ -106,6 +115,7 @@ export default function LpDetailPage() {
       </div>
 
       <CommentSection lpid={lpid!} order={order} setOrder={setOrder} />
+      {showEditModal && <LpUpdateModal lp={data} onClose={() => setShowEditModal(false)} />}
     </div>
   );
 }
