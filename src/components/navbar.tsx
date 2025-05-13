@@ -23,7 +23,7 @@ const Navbar = ({ toggleSidebar }: NavbarProps) => {
   });
 
   return (
-    <nav className="flex justify-between items-center px-4 py-3 bg-[#FDF6EC] text-[#5B3A00] rounded-b-xl shadow-sm">
+    <nav className="flex justify-between items-center px-4 py-3 bg-[#FDF6EC] text-[#5B3A00] rounded-xl shadow-sm">
       <button onClick={toggleSidebar} className="text-xl md:hidden">
         ☰
       </button>
