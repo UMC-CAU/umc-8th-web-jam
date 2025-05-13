@@ -1,14 +1,18 @@
 // src/pages/LpDetailPage.tsx
-import { useParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
 import api from '../utils/api';
 import { LP } from '../types/lp';
 import CommentSection from '../components/CommentSection';
+import LpUpdateModal from '../components/LpUpdateModal';
 
 export default function LpDetailPage() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { lpid } = useParams();
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data, error, isLoading } = useQuery({
     queryKey: ['lp', lpid],
@@ -18,6 +22,36 @@ export default function LpDetailPage() {
     },
     enabled: !!lpid,
   });
+
+  const deleteLp = useMutation({
+    mutationFn: async () => {
+      console.log(`${lpid} 삭제 호출`);
+      const res = await api.delete(`/v1/lps/${lpid}`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lps', lpid] });
+      alert('LP 삭제 완료');
+      navigate('/lps');
+    },
+    onError: (error) => {
+      console.error('LP 삭제 실패', error);
+    },
+  });
+
+  const likeLP = useMutation({
+    mutationFn: async () => {
+      const res = await api.post(`/v1/lps/${lpid}/likes`);
+      return res.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['likes', lpid] });
+      // 좋아요 개수 다시 렌더링
+    },
+    onError: (error) => {
+      console.log(error);
+    }
+  })
 
   if (isLoading) return <div className="p-6">로딩 중...</div>;
   if (error) return <div className="p-6 text-red-500">에러 발생</div>;
@@ -30,8 +64,18 @@ export default function LpDetailPage() {
           {data.author?.name} · {new Date(data.createdAt).toLocaleDateString()}
         </div>
         <div className="flex gap-2">
-          <button className="text-sm text-gray-400 hover:text-white">✏️ 수정</button>
-          <button className="text-sm text-gray-400 hover:text-red-400">🗑 삭제</button>
+          <button
+            className="text-sm text-gray-400 hover:text-white"
+            onClick={() => setShowEditModal(true)}
+          >
+            ✏️ 수정
+          </button>
+          <button
+            className="text-sm text-gray-400 hover:text-red-400"
+            onClick={() => deleteLp.mutate()}
+          >
+            🗑 삭제
+          </button>
         </div>
       </div>
 
@@ -78,13 +122,15 @@ export default function LpDetailPage() {
       </div>
 
       <div className="text-center text-sm text-gray-300 mb-8">
-        <button className="text-lg hover:scale-120 transition-transform focus:outline-none">
+        <button className="text-lg hover:scale-120 transition-transform focus:outline-none"
+        onClick={() => likeLP.mutate()}>
           ❤️
         </button>{' '}
         {data.likes.length}명에게 사랑받음
       </div>
 
       <CommentSection lpid={lpid!} order={order} setOrder={setOrder} />
+      {showEditModal && <LpUpdateModal lp={data} onClose={() => setShowEditModal(false)} />}
     </div>
   );
 }
