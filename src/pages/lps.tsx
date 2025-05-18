@@ -11,10 +11,10 @@ const fetchLps = async ({
   queryKey,
 }: {
   pageParam?: number;
-  queryKey: [string, string]; // ['lps', order]
+  queryKey: [string, string, string]; // ['lps', order, searchQuery]
 }): Promise<LPResponse> => {
-  const [, order] = queryKey;
-  const res = await api.get(`/v1/lps?order=${order}&cursor=${pageParam}`);
+  const [, order, search] = queryKey;
+  const res = await api.get(`/v1/lps?order=${order}&cursor=${pageParam}&search=${search}`);
 
   return res.data.data;
 };
@@ -28,7 +28,7 @@ export default function LPsPage() {
 
   const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery<LPResponse, Error>({
-      queryKey: ['lps', order], // order는 useState 등으로 정의
+      queryKey: ['lps', order, searchQuery], // order는 useState 등으로 정의
       queryFn: fetchLps,
       getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     });
@@ -72,7 +72,7 @@ export default function LPsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="LP를 검색해보세요"
-            className="w-full  py-2 pl-10 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-yellow-300 shadow-sm"
+            className="w-full  py-2 pl-3 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-yellow-300 shadow-sm"
           />
         </div>
 
