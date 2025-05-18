@@ -46,10 +46,11 @@ export default function LpDetailPage() {
     },
     // onMutate: UI를 먼 업데이트하고, 이전 상태 저장
     onMutate: async () => {
-      await queryClient.cancelQueries({ queryKey: ['lp', lpid] }); // 해당 쿼리의 refetch를 중단시킴 (중간에 불필요한 업데이트 방지)
+      await queryClient.cancelQueries({ queryKey: ['lp', lpid] }); // 해당 쿼리의 fetch를 중단시킴 (중간에 불필요한 업데이트 방지)
       const previous = queryClient.getQueryData(['lp', lpid]); // 현재 캐시 상태를 백업해둠 (실패 시 롤백용)
+
       // 캐시를 즉시 업데이트하여 좋아요가 반영된 것처럼 UI에 표시
-      // old는 현재 캐시에 들어 있는 LP 데이터 (LP 객체)
+      // old는 현재 캐시에 들어 있는 LP 데이터 (LP 객체), React Query가 해당 쿼리 키의 현재 캐시값을 자동으로 넣어줌 (old)
       queryClient.setQueryData(['lp', lpid], (old: LP) => {
         if (!old) return old;
         return {
