@@ -51,7 +51,9 @@ api.interceptors.request.use(
     const accessToken = localStorage.getItem('accessToken');
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.log('accessToken 포함 요청:', config.url);
+      // console.log('accessToken 포함 요청:', config.url);
+      const now = new Date();
+      console.log(`api 요청: ${now.toLocaleTimeString()}.${now.getMilliseconds()}ms`);
     } else {
       console.warn('accessToken 없음 - 요청 URL:', config.url);
     }

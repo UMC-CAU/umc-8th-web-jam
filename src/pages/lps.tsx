@@ -1,11 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import { LPResponse } from '../types/lp';
 import SkeletonCard from '../components/SkeletonCard';
 import LpAddModal from '../components/LpAddModal';
 import { useDebounce } from '../hooks/useDebounce';
+import { useThrottle } from '../hooks/useThrottle';
 
 const fetchLps = async ({
   pageParam = 0,
@@ -24,8 +25,9 @@ export default function LPsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0); // 사용자가 스크롤한 위치(Y축)를 저장
+  const throttledScrollY = useThrottle(scrollY, 1000); // 1초마다 scrollY 값을 갱신하도록 throttle 처리
   const navigate = useNavigate();
-  const observerRef = useRef<HTMLDivElement | null>(null);
 
   const debouncedQuery = useDebounce(searchQuery, 500);
 
@@ -36,22 +38,28 @@ export default function LPsPage() {
       getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     });
 
+    
+// 실제 스크롤 이벤트를 감지하는 로직
   useEffect(() => {
-    if (!observerRef.current || !hasNextPage) return;
+    const handleScroll = () => {
+      setScrollY(window.scrollY); // 현재 스크롤 위치를 scrollY 상태로 업데이트
+    };
+    window.addEventListener('scroll', handleScroll); // 스크롤 이벤트 리스너 등록
+    return () => window.removeEventListener('scroll', handleScroll); // 컴포넌트가 언마운트되거나 리렌더될 때 이벤트 리스너 제거
+  }, []);
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 1.0 },
-    );
+  // throttledScrollY가 변할 때마다 바닥 감지 → API 요청
+  useEffect(() => {
+    const windowHeight = window.innerHeight; // 현재 브라우저 창 높이
+    const fullHeight = document.documentElement.scrollHeight; // 전체 문서 높이
 
-    observer.observe(observerRef.current);
-
-    return () => observer.disconnect();
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+    // 현재 스크롤 위치 + 창 높이가 전체 높이에서 200px 이내에 도달하면 → 바닥 근처
+    if (throttledScrollY + windowHeight >= fullHeight - 200) { 
+      if (hasNextPage && !isFetchingNextPage) { // 다음 페이지가 있고, 현재 로딩 중이 아니라면 → 다음 페이지 요청
+        fetchNextPage();
+      }
+    }
+  }, [throttledScrollY, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   if (error) return <p>에러 발생</p>;
 
@@ -140,9 +148,6 @@ export default function LPsPage() {
       </div>
 
       {error && <p className="text-red-500 mt-4">에러 발생</p>}
-
-      {/* 관찰자용 div */}
-      <div ref={observerRef} style={{ height: 20 }} />
 
       {isModalOpen && <LpAddModal onClose={() => setIsModalOpen(false)} />}
     </div>
