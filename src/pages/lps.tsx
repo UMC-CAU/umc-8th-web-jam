@@ -5,29 +5,33 @@ import api from '../utils/api';
 import { LPResponse } from '../types/lp';
 import SkeletonCard from '../components/SkeletonCard';
 import LpAddModal from '../components/LpAddModal';
+import { useDebounce } from '../hooks/useDebounce';
 
 const fetchLps = async ({
   pageParam = 0,
   queryKey,
 }: {
   pageParam?: number;
-  queryKey: [string, string]; // ['lps', order]
+  queryKey: [string, string, string]; // ['lps', order, searchQuery]
 }): Promise<LPResponse> => {
-  const [, order] = queryKey;
-  const res = await api.get(`/v1/lps?order=${order}&cursor=${pageParam}`);
+  const [, order, search] = queryKey;
+  const res = await api.get(`/v1/lps?order=${order}&cursor=${pageParam}&search=${search}`);
 
   return res.data.data;
 };
 
 export default function LPsPage() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [order, setOrder] = useState<'asc' | 'desc'>('desc');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
   const observerRef = useRef<HTMLDivElement | null>(null);
 
+  const debouncedQuery = useDebounce(searchQuery, 500);
+
   const { data, error, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useInfiniteQuery<LPResponse, Error>({
-      queryKey: ['lps', order], // order는 useState 등으로 정의
+      queryKey: ['lps', order, debouncedQuery], // order는 useState 등으로 정의
       queryFn: fetchLps,
       getNextPageParam: (lastPage) => (lastPage.hasNext ? lastPage.nextCursor : undefined),
     });
@@ -53,39 +57,53 @@ export default function LPsPage() {
 
   return (
     <div className="p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">LP 목록</h1>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 text-sm rounded-md bg-black text-white"
-        >
-          + LP 등록
-        </button>
-      </div>
+      <div className="w-full max-w-5xl mx-auto">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-xl font-bold">LP 목록</h1>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="px-4 py-2 text-sm rounded-md bg-black text-white"
+          >
+            + LP 등록
+          </button>
+        </div>
 
-      <div className="flex justify-end mb-4 gap-2">
-        <button
-          onClick={() => setOrder('asc')}
-          className={`px-3 py-1 text-sm rounded-md border transition
-            ${
-              order === 'asc'
-                ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-            }`}
-        >
-          오래된순
-        </button>
-        <button
-          onClick={() => setOrder('desc')}
-          className={`px-3 py-1 text-sm rounded-md border transition
-            ${
-              order === 'desc'
-                ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
-                : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
-            }`}
-        >
-          최신순
-        </button>
+        <div className="w-full max-w-5xl mx-auto flex items-center gap-3 mb-6">
+          <div className="flex-grow relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="LP를 검색해보세요"
+              className="w-full  py-2 pl-3 rounded-md border border-gray-300 focus:outline-none focus:ring-1 focus:ring-yellow-300 shadow-sm"
+            />
+          </div>
+
+          <div className="flex gap-3 h-full">
+            <button
+              onClick={() => setOrder('asc')}
+              className={`px-4 py-2 text-sm rounded-md border transition whitespace-nowrap
+        ${
+          order === 'asc'
+            ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+            : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+        }`}
+            >
+              오래된순
+            </button>
+            <button
+              onClick={() => setOrder('desc')}
+              className={`px-4 py-2 text-sm rounded-md border transition whitespace-nowrap
+        ${
+          order === 'desc'
+            ? 'bg-[#FFF8DC] text-[#5B3A00] border-[#FDE7A3]'
+            : 'bg-white text-[#5B3A00] border-[#FDE7A3] hover:bg-[#FFF8DC]'
+        }`}
+            >
+              최신순
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
