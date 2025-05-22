@@ -18,16 +18,9 @@ api.interceptors.response.use(
 
       try {
         // Refresh Token으로 accessToken 재발급 요청
-        const refreshRes = await axios.post(
-          `${import.meta.env.VITE_API_URL}/v1/auth/refresh`,
-          { refresh: refreshToken },
-          {
-            withCredentials: true,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          },
-        );
+        const refreshRes = await api.post('/v1/auth/refresh', {
+          refresh: refreshToken,
+        });
 
         const newAccessToken = refreshRes.data.data.accessToken;
         localStorage.setItem('accessToken', newAccessToken);
