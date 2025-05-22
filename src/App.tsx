@@ -12,7 +12,7 @@ import MyPage from './pages/my-page.tsx';
 import RootLayout from './layout/root-layout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import OAuthCallback from './pages/OAuthCallback.tsx';
-import LPsPage from './pages/Lps.tsx';
+import LPsPage from './pages/lps.tsx';
 import LpDetailPage from './pages/lp-detail-page.tsx';
 
 const router = createBrowserRouter([
