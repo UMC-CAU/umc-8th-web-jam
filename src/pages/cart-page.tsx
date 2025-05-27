@@ -5,7 +5,9 @@ import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../app/store';
 import CartItem from '../components/CartItem';
-import { clearCart, calculateTotals } from '../features/cartSlice';
+import CartClearModal from '../components/CartClearModal';
+import { calculateTotals } from '../features/cartSlice';
+import { openCartClearModal } from '../features/modalSlice';
 
 const CartPage = () => {
   const dispatch = useDispatch();
@@ -13,6 +15,10 @@ const CartPage = () => {
   const cartItems = useSelector((state: RootState) => state.cart.cartItems);
   const totalAmount = useSelector((state: RootState) => state.cart.totalAmount);
   const totalPrice = useSelector((state: RootState) => state.cart.totalPrice);
+
+  const isCartClearModalOpen = useSelector(
+    (state: RootState) => state.modal.isCartClearModalOpen
+  );
 
   // 장바구니 아이템 변경 시 총합 계산
   useEffect(() => {
@@ -33,12 +39,14 @@ const CartPage = () => {
         <CartItem key={item.id} {...item} />
       ))}
 
-      <button
-        onClick={() => dispatch(clearCart())}
+       <button
+        onClick={() => dispatch(openCartClearModal())}
         className="m-10 px-5 py-2 rounded border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
       >
         전체 삭제
       </button>
+
+      {isCartClearModalOpen && <CartClearModal />}
     </div>
   );
 };
