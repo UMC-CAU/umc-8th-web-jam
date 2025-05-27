@@ -1,6 +1,7 @@
 // cart 상태에 대한 로직을 정의하는 Redux slice: increase, decrease 등의 reducer 함수 포함
 // createSlice()를 통해 장바구니 상태의 형태와 변경 로직 정의
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+// PayloadAction<type>은 액션이 전달하는 데이터(payload)의 타입을 명확히 지정하는 역할
 import cartItems from '../constants/cartItem';
 
 type CartItem = {
@@ -28,6 +29,7 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
+    // PayloadAction<sting>: 이 increase 리듀서는 payload로 string 타입의 데이터를 받는 액션만 처리할 수 있다
     increase: (state, action: PayloadAction<string>) => {
       const item = state.cartItems.find((i) => i.id === action.payload);
       if (item) item.amount += 1;

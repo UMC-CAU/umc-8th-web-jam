@@ -2,10 +2,12 @@
 // 이 store는 <Provider store={store}>로 main.tsx에서 앱 전체에 주입됨
 import { configureStore } from '@reduxjs/toolkit';
 import cartReducer from '../features/cartSlice';
+import modalReducer from '../features/modalSlice';
 
 export const store = configureStore({
   reducer: {
     cart: cartReducer,
+    modal: modalReducer,
   },
 });
 
