@@ -1,18 +1,15 @@
-// src/components/CartClearModal.tsx
-import { useDispatch } from 'react-redux';
-import { clearCart } from '../features/cartSlice';
-import { closeCartClearModal } from '../features/modalSlice';
+import { useCartStore } from '../store/useCartStore';
 
 const CartClearModal = () => {
-  const dispatch = useDispatch();
+  const { clearCart, closeClearCartModal } = useCartStore();
 
   const handleConfirm = () => {
-    dispatch(clearCart());
-    dispatch(closeCartClearModal());
+    clearCart();
+    closeClearCartModal();
   };
 
   const handleCancel = () => {
-    dispatch(closeCartClearModal());
+    closeClearCartModal();
   };
 
   return (
