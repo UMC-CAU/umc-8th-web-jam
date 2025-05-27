@@ -16,9 +16,15 @@ const CartPage = () => {
   const totalAmount = useSelector((state: RootState) => state.cart.totalAmount);
   const totalPrice = useSelector((state: RootState) => state.cart.totalPrice);
 
-  const isCartClearModalOpen = useSelector(
-    (state: RootState) => state.modal.isCartClearModalOpen
-  );
+  const isCartClearModalOpen = useSelector((state: RootState) => state.modal.isCartClearModalOpen);
+
+  const handleClearClick = () => {
+    if (cartItems.length === 0) {
+      alert('장바구니에 상품이 없습니다.');
+      return;
+    }
+    dispatch(openCartClearModal());
+  };
 
   // 장바구니 아이템 변경 시 총합 계산
   useEffect(() => {
@@ -39,9 +45,9 @@ const CartPage = () => {
         <CartItem key={item.id} {...item} />
       ))}
 
-       <button
-        onClick={() => dispatch(openCartClearModal())}
-        className="m-10 px-5 py-2 rounded border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
+      <button
+        onClick={handleClearClick}
+        className="m-10 px-5 py-2 rounded border border-red-400 text-red-400 hover:bg-red-500 hover:text-white transition"
       >
         전체 삭제
       </button>
