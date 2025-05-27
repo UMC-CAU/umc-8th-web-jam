@@ -1,5 +1,5 @@
-import { useDispatch } from 'react-redux';
-import { increase, decrease } from '../features/cartSlice';
+import { useCartStore } from '../store/useCartStore';
+
 
 type CartItemProps = {
   id: string;
@@ -11,7 +11,7 @@ type CartItemProps = {
 };
 
 const CartItem = ({ id, title, singer, price, img, amount }: CartItemProps) => {
-  const dispatch = useDispatch();
+  const { increase, decrease, } = useCartStore();
 
   return (
     <div className="flex items-center py-4 border-b text-white">
@@ -23,14 +23,14 @@ const CartItem = ({ id, title, singer, price, img, amount }: CartItemProps) => {
       </div>
       <div className="flex items-center gap-2">
         <button
-          onClick={() => dispatch(decrease(id))}
+          onClick={() => decrease(id)}
           className="border px-2 py-1"
         >
           -
         </button>
         <span>{amount}</span>
         <button
-          onClick={() => dispatch(increase(id))}
+          onClick={() => increase(id)}
           className="border px-2 py-1"
         >
           +
