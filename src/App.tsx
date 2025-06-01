@@ -9,6 +9,7 @@ import NotFound from './pages/not-found.tsx';
 import LogIn from './pages/log-in.tsx';
 import SignUp from './pages/sign-up.tsx';
 import MyPage from './pages/my-page.tsx';
+import CartPage from './pages/cart-page.tsx'
 import RootLayout from './layout/root-layout.tsx';
 import ProtectedRoute from './components/ProtectedRoute.tsx';
 import OAuthCallback from './pages/OAuthCallback.tsx';
@@ -52,6 +53,14 @@ const router = createBrowserRouter([
             <MyPage />,
           </ProtectedRoute>
         ),
+      },
+      {
+        path: 'cart',
+        element: (
+          <ProtectedRoute>
+            <CartPage />
+          </ProtectedRoute>
+        )
       },
       {
         path: 'v1/auth/google/callback',
