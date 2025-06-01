@@ -1,11 +1,8 @@
 import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
 import axios from 'axios';
-import {
-  Movie,
-  MovieResponse,
-  MovieDetailResponse,
-} from '../types/movie';
+import { useState, useMemo, useCallback } from 'react';
+import { MovieResponse, MovieDetailResponse } from '../types/movie';
+import MovieCard from '../components/MovieCard';
 import MovieDetailModal from '../components/MovieDetailModal';
 
 const fetchMovies = async ({
@@ -33,10 +30,7 @@ const fetchMovies = async ({
   return res.data;
 };
 
-const fetchMovieDetail = async (
-  movieId: number,
-  lang: string
-): Promise<MovieDetailResponse> => {
+const fetchMovieDetail = async (movieId: number, lang: string): Promise<MovieDetailResponse> => {
   const res = await axios.get(`https://api.themoviedb.org/3/movie/${movieId}`, {
     params: { language: lang },
     headers: {
@@ -51,7 +45,7 @@ const MovieSearchPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [language, setLanguage] = useState('ko-KR');
   const [includeAdult, setIncludeAdult] = useState(false);
-  const [submittedQuery, setSubmittedQuery] = useState(''); 
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -60,14 +54,10 @@ const MovieSearchPage = () => {
     setSubmittedQuery(searchQuery);
   };
 
-  const {
-    data,
-    error,
-    isLoading,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery<MovieResponse, Error>({
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
+    MovieResponse,
+    Error
+  >({
     queryKey: ['movies', submittedQuery, language, includeAdult],
     queryFn: fetchMovies,
     getNextPageParam: (lastPage) =>
@@ -85,22 +75,24 @@ const MovieSearchPage = () => {
     enabled: !!selectedMovieId && isModalOpen,
   });
 
-  const handleMovieClick = (movieId: number) => {
+
+  // useCallback()으로 불필요한 함수 객체 재생성을 방지하여 MovieCard의 리렌더링을 최소화
+  const handleMovieClick = useCallback((movieId: number) => {
     setSelectedMovieId(movieId);
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseModal = () => {
-    setSelectedMovieId(null);
-    setIsModalOpen(false);
-  };
+  // useMemo()로 data가 변경되지 않는 한, 기존 배열 결과를 재사용하여 불필요한 계산과 렌더링 방지
+  const movieList = useMemo(() => {
+    return data?.pages.flatMap((page) => page.results) ?? [];
+  }, [data]);
 
   return (
+    
     <div className="p-4 sm:p-6 md:p-8">
-
       {/* 검색 조건 입력 영역 */}
       <div className="flex flex-col gap-4 mb-6 text-black">
-        <div className="flex flex-col sm:flex-row gap-4 items-center ">
+        <div className="flex flex-col sm:flex-row gap-4 items-center">
           <input
             type="text"
             placeholder="영화 제목을 입력하세요"
@@ -112,7 +104,7 @@ const MovieSearchPage = () => {
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="border p-2 rounded "
+            className="border p-2 rounded"
           >
             <option value="ko-KR">한국어</option>
             <option value="en-US">영어</option>
@@ -139,31 +131,16 @@ const MovieSearchPage = () => {
 
       {/* 검색 결과 */}
       {isLoading ? (
-        <p>로딩 중...</p>
-      ) : (
+        <div className="text-center text-lg text-gray-600 mt-10">영화 정보를 불러오는 중...</div>
+      ) : error ? (
+        <div className="text-center text-red-500 text-lg mt-10">
+          영화 데이터를 불러오지 못했습니다. 다시 시도해주세요.
+        </div>
+      ) :  (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-black">
-          {data?.pages.flatMap((page) =>
-            page.results.map((movie: Movie) => (
-              <div
-                key={movie.id}
-                className="cursor-pointer p-2 rounded shadow hover:scale-105 transition"
-                onClick={() => handleMovieClick(movie.id)}
-              >
-                <img
-                  src={
-                    movie.poster_path
-                      ? `https://image.tmdb.org/t/p/w200${movie.poster_path}`
-                      : '/no-image.png'
-                  }
-                  alt={movie.title}
-                  className="w-full rounded"
-                />
-                <h2 className="mt-2 text-md font-semibold text-center">
-                  {movie.title}
-                </h2>
-              </div>
-            ))
-          )}
+          {movieList.map((movie) => (
+            <MovieCard key={movie.id} movie={movie} onClick={handleMovieClick} />
+          ))}
         </div>
       )}
 
@@ -189,10 +166,7 @@ const MovieSearchPage = () => {
           ) : detailLoading ? (
             <div className="text-center mt-4">로딩 중...</div>
           ) : selectedMovieDetail ? (
-            <MovieDetailModal
-              movie={selectedMovieDetail}
-              onClose={handleCloseModal}
-            />
+            <MovieDetailModal movie={selectedMovieDetail} onClose={() => setIsModalOpen(false)} />
           ) : null}
         </>
       )}
