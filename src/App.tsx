@@ -15,6 +15,8 @@ import ProtectedRoute from './components/ProtectedRoute.tsx';
 import OAuthCallback from './pages/OAuthCallback.tsx';
 import LPsPage from './pages/lps.tsx';
 import LpDetailPage from './pages/lp-detail-page.tsx';
+import MovieLayout from './layout/movie-layout.tsx';
+import MovieSearchPage from './pages/movie-search-page.tsx';
 
 const router = createBrowserRouter([
   {
@@ -68,6 +70,17 @@ const router = createBrowserRouter([
       },
     ],
   },
+  {
+    path: '/movies',
+    element: <MovieLayout/>,
+    errorElement: <NotFound />,
+    children: [
+      {
+        path: 'search',
+        element: <MovieSearchPage/>
+      }
+    ]
+  }
 ]);
 
 const queryClient = new QueryClient();
