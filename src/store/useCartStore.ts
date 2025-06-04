@@ -3,6 +3,7 @@
 // Redux는 여러 slice를 통합하고 미들웨어를 붙이기 위해 configureStore()를 사용해야 했다.
 // 하지만 Zustand는 각 상태 훅이 독립적인 store 역할을 한다.
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import cartItemsData from '../constants/cartItem';
 
 // cartSlice.ts에 있던 부분
@@ -31,54 +32,59 @@ type CartStore = {
 };
 
 // cartSlice.ts에 있던 부분
-export const useCartStore = create<CartStore>((set, get) => ({
-  // initial state
-  cartItems: cartItemsData,
-  totalAmount: 0,
-  totalPrice: 0,
-  isCartClearModalOpen: false,
+export const useCartStore = create<CartStore>()(
+  persist(
+    (set, get) => ({
+      cartItems: cartItemsData,
+      totalAmount: 0,
+      totalPrice: 0,
+      isCartClearModalOpen: false,
 
-  // reducers였던 것들
-  increase: (id) =>
-    set((state) => {
-      const updatedItems = state.cartItems.map((item) =>
-        item.id === id ? { ...item, amount: item.amount + 1 } : item,
-      );
-      return { cartItems: updatedItems };
-    }),
+      increase: (id) =>
+        set((state) => {
+          const updatedItems = state.cartItems.map((item) =>
+            item.id === id ? { ...item, amount: item.amount + 1 } : item,
+          );
+          return { cartItems: updatedItems };
+        }),
 
-  decrease: (id) =>
-    set((state) => {
-      const item = state.cartItems.find((i) => i.id === id);
-      let updatedItems = state.cartItems.map((item) =>
-        item.id === id ? { ...item, amount: item.amount - 1 } : item,
-      );
-      if (item && item.amount <= 1) {
-        updatedItems = state.cartItems.filter((item) => item.id !== id);
-      }
-      return { cartItems: updatedItems };
-    }),
+      decrease: (id) =>
+        set((state) => {
+          const item = state.cartItems.find((i) => i.id === id);
+          let updatedItems = state.cartItems.map((item) =>
+            item.id === id ? { ...item, amount: item.amount - 1 } : item,
+          );
+          if (item && item.amount <= 1) {
+            updatedItems = state.cartItems.filter((item) => item.id !== id);
+          }
+          return { cartItems: updatedItems };
+        }),
 
-  remove: (id) =>
-    set((state) => ({
-      cartItems: state.cartItems.filter((item) => item.id !== id),
-    })),
+      remove: (id) =>
+        set((state) => ({
+          cartItems: state.cartItems.filter((item) => item.id !== id),
+        })),
 
-  clearCart: () => set({ cartItems: [] }),
+      clearCart: () => set({ cartItems: [] }),
 
-  openClearCartModal: () => set({ isCartClearModalOpen: true }),
-  closeClearCartModal: () => set({ isCartClearModalOpen: false }),
+      openClearCartModal: () => set({ isCartClearModalOpen: true }),
+      closeClearCartModal: () => set({ isCartClearModalOpen: false }),
 
-  calculateTotals: () => {
-    const { cartItems } = get();
-    const { totalAmount, totalPrice } = cartItems.reduce(
-      (acc, item) => {
-        acc.totalAmount += item.amount;
-        acc.totalPrice += item.amount * Number(item.price);
-        return acc;
+      calculateTotals: () => {
+        const { cartItems } = get();
+        const { totalAmount, totalPrice } = cartItems.reduce(
+          (acc, item) => {
+            acc.totalAmount += item.amount;
+            acc.totalPrice += item.amount * Number(item.price);
+            return acc;
+          },
+          { totalAmount: 0, totalPrice: 0 },
+        );
+        set({ totalAmount, totalPrice });
       },
-      { totalAmount: 0, totalPrice: 0 },
-    );
-    set({ totalAmount, totalPrice });
-  },
-}));
+    }),
+    {
+      name: 'cart-storage', // localStorage key 이름, localStorage > cart-storage 에 상태가 저장
+    }
+  )
+);
